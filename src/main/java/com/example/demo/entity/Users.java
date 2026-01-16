@@ -1,18 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @ToString
 @Entity
-@Table(name = "")
+@Table(name = "users")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 /* 사용자 */
-public class Users {
+public  class Users extends BaseTimeEntity{
 //    변수명	내용	규격	제약조건
 //    id		                                                BIGINT	            PK
 //    nickname	        유저 닉네임	                            VARCHAR(50)	        UNIQUE
@@ -29,12 +32,37 @@ public class Users {
 //                      개인정보 보관 기간 지나면 실제 삭제
 //    last_login_at	    마지막 로그인	                            DATETIME	        NULL
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "nickname", unique = true, length = 50)
+    private String nickname;
+
+    @Column(name = "birth")
+    private LocalDate birth;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    @Column(name = "address", length = 50)
+    private String address;
+
+    @Column(name = "address_detail", length = 50)
+    private String addressDetail;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+
 
 /*  [comments]
 1. 소셜로그인으로 회원가입 시 기본정보만 이곳에 저장되고 소셜로그인 관련 정보는 user_oauth_accounts 테이블에 저장됨.
 2. 로컬로그인(ID, PW)과 소셜로그인(API) 둘다 사용가능하려면 password는 null 허용이어야 함. ← 소셜로그인은 PW 안쓰기 때문.
 3. 계정 탈퇴시 계정을 바로 삭제하는 것이 아니라 개인정보 보관기간 지나면(ex: 1년) deleted_at 컬럼 기준으로 삭제.
-4. 실물 상품이 오는 서비스가 아니기 때문에 address 컬럼은 제외함.
-5. 주소지 필요 시 주문 테이블에 저장.
  */
 }

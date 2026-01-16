@@ -5,11 +5,9 @@
     @Column(name = "id")
     private Long id;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 
-    @PrePersist
-    void prePersist() {
-        var now = LocalDateTime.now();
-        if (expiration_date == null) expiration_date = now; // 최초 생성일
-    }
+
+    @CreationTimestamp
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "coupon")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 /* 쿠폰 목록 */
-public class Coupon {
+public class Coupon extends BaseTimeEntity{
 //    변수명	            내용	        규격	        제약조건
 //    id	            테이블 PK	BIGINT	    PK
 //    coupon_name	    쿠폰명	    VARCHAR	    NOT NULL, UNIQUE
@@ -36,7 +37,6 @@ public class Coupon {
     private Integer discount;
 
     @Column(name = "expiration_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expirationDate;
 
 
