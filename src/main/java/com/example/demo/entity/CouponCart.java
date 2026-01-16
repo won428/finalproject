@@ -1,17 +1,18 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.enums.Status;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
 @ToString
 @Entity
-@Table(name = "")
-/*  */
+@Table(name = "coupon_cart")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+/* 쿠폰 보유 목록 */
 public class CouponCart {
 //    변수명	내용	규격	제약조건
 //    id	        테이블 PK	BIGINT	    PK
@@ -22,4 +23,17 @@ public class CouponCart {
 //                  미사용(UNUSED),
 //                  사용(USED),
 //                  만료(EXPIRED))
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    private Long userId;
+
+    private Long couponId;
+
+    private LocalDate receivedAt;
+
+    private Status staus;
 }
