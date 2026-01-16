@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  localstack:
+    container_name: localstack_s3
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"            # LocalStack 접근 포트
+    environment:
+      - SERVICES=s3            # S3 서비스만 활성화
+      - DEFAULT_REGION=ap-northeast-2
+      - DEBUG=1                # 로그 활성화
+    volumes:
+      - "./localstack_data:/var/lib/localstack" # 컨테이너가 꺼져도 데이터 유지
