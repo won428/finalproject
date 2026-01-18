@@ -11,3 +11,5 @@
     @CreationTimestamp
 
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+
+    @Enumerated(EnumType.STRING)

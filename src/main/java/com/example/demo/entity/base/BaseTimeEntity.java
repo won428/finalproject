@@ -1,8 +1,9 @@
-package com.example.demo.entity;
+package com.example.demo.entity.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -10,8 +11,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @MappedSuperclass // 테이블로 생성되지 않고 자식 클래스에게 매핑 정보만 제공
-public abstract class BaseTimeEntity {
+public abstract class BaseTimeEntity extends BasePkEntity{
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false) // 수정 시에는 건드리지 않음

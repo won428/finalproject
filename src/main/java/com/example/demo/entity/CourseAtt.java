@@ -1,27 +1,29 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BaseAttEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude="coursesCurriculum")
 @Entity
-@Table(name = "")
+@Table(name = "course_att")
 /*  */
-public class CourseAtt {
-//    변수명	            내용	                    규격	        제약조건
-//    id	            테이블 PK	            BIGINT	    PK
-//    course_id	        강의 FK	                BIGINT	    FK
-//    storage_provider	스토리지명 (현재 S3)	    VARCHAR	    NOT NULL
-//    s3_region	        리전명	                VARCHAR 	NOT NULL
-//    s3_key	        S3 키(객체 식별을 위한 키)	VARCHAR 	NOT NULL
-//    s3_bucket	        버킷명	                VARCHAR 	NOT NULL
-//    content_type	    컨텐츠타입	            VARCHAR 	NOT NULL
-//    file_size_bytes	파일 사이즈	            BIGINT  	NOT NULL
-//    checksum	        해쉬나 태그	            VARCHAR	    NOT NULL
-//    created_at	    등록 날짜	            DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
+public class CourseAtt extends BaseAttEntity {
+//    변수명	                            내용	                    규격	        제약조건
+//    id	                            테이블 PK	            BIGINT	    PK
+//    courses_curriculum_id	            강의 회차 FK              BIGINT	    FK
+//    storage_provider	                스토리지명 (현재 S3)	    VARCHAR	    NOT NULL
+//    s3_key	                        S3 키(객체 식별을 위한 키)	VARCHAR 	NOT NULL
+//    content_type	                    컨텐츠타입	            VARCHAR 	NOT NULL
+//    file_size_bytes	                파일 사이즈	            BIGINT  	NOT NULL
+//    checksum	                        해쉬나 태그	            VARCHAR	    NOT NULL
+//    created_at	                    등록 날짜	            DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "courses_curriculum_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_att_courses_curriculum"))
+    private CoursesCurriculum coursesCurriculum;
 }

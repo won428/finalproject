@@ -1,11 +1,11 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.base.BasePkEntity;
 import com.example.demo.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 /* 쿠폰 보유 목록 */
-public class CouponCart {
+public class CouponCart extends BasePkEntity {
 //    변수명	내용	규격	제약조건
 //    id	        테이블 PK	BIGINT	    PK
 //    user_id	    보유자 ID	BIGINT	    FK, NOT NULL
@@ -29,14 +29,9 @@ public class CouponCart {
 //                  사용(USED),
 //                  만료(EXPIRED))
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_coupon_cart_users"))
-    private Users user;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id", nullable = false, foreignKey = @ForeignKey(name = "fk_coupon_cart_coupon"))

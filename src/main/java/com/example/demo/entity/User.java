@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 
+import com.example.demo.entity.base.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 /* 사용자 */
-public  class Users extends BaseTimeEntity{
+public  class User extends BaseTimeEntity {
 //    변수명	내용	규격	제약조건
 //    id		                                                BIGINT	            PK
 //    nickname	        유저 닉네임	                            VARCHAR(50)	        UNIQUE
