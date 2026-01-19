@@ -12,7 +12,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "")
 /* 결제완료 */
-public class Payments {
+public class Payment {
 //    변수명	                내용	                            규격	        제약조건
 //    id	                테이블 PK	                    BIGINT	    PK
 //    order_id	            주문 내역 FK	                    BIGINT	    FK

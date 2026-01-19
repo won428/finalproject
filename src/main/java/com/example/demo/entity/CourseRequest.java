@@ -33,8 +33,6 @@ public class CourseRequest extends BaseRequestTimeEntity {
     @Column(name = "description", nullable = false, length = 2000)
     private String description;
 
-    @Column(name = "status", nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.PENDING;
+
 
 }

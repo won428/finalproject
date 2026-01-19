@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.base.BaseTagEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -10,10 +12,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
-@Table(name = "")
+@Table(name = "mentoring_post_tags")
 /* 멘토링 글 태그 */
-public class MentoringPostsTags {
+public class MentoringPostTag extends BaseTagEntity {
 //    변수명	    내용	        규격	    제약조건
 //    post_id	게시글 ID	BIGINT 	NOT NULL
 //    tag_id	태그 ID	    BIGINT	NOT NULL
+
+
 }
