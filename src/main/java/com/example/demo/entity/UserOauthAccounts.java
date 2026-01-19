@@ -1,34 +1,74 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BaseTimeEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor
+@ToString(exclude = {"user"}) // 순환참조/지연로딩 출력 방지
 @Entity
-@Table(name = "")
+@Table(
+        name = "user_oauth_accounts",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_oauth_provider_id",
+                        columnNames = {"provider", "provider_user_id"}
+                )
+        },
+        indexes = {
+                @Index(name = "idx_oauth_user_id", columnList = "user_id")
+        }
+)
 /* 소셜 로그인 테이블 */
-public class UserOauthAccounts {
-//    변수명	                    내용	                                                            규격	                    제약조건
-//    id			                                                                                                    PK
-//    user_id			                                                                                                FK
-//    provider	                어느 소셜 제공자인지                                               VARCHAR(20)	            UNIQUE, NOT NULL
-//                              GOOGLE / KAKAO / NAVER
+public class UserOauthAccounts extends BaseTimeEntity {
 
-//    provider_user_id	        제공자가 부여한 해당 유저의 식별자	                                VARCHAR(255)	        UNIQUE, NOT NULL
-//    provider_email	        소셜 제공자가 내려준 사용자의 이메일	                                VARCHAR(255)	        NULL
-//    provider_email_verified	검증된 이메일인지 여부
-//                              (미검증 = 0/ 검증 = 1)	                                        TINYINT(1)	            NULL
+    // user_id BIGINT NOT NULL, FK -> users(id) ON DELETE CASCADE
+    @Column(name = "user_id", nullable = false)
+    private Long user_id;
 
-//    created_at	            해당 행이 생성된 시각	                                            DATETIME	            NOT NULL DEFAULT CURRENT_TIMESTAMP
-//    updated_at	            해당 행이 수정된 시각	                                            DATETIME	            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-//    linked_at	                소셜계정이 유저 계정에 처음 붙은 시각
-//                              = 소셜로그인으로 최초 가입한 날짜	                                DATETIME	            NOT NULL DEFAULT CURRENT_TIMESTAMP
+    // users 엔티티 연관관계 (같은 user_id 컬럼을 사용하므로 읽기 전용으로 매핑, setter로 set 안됨.)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_oauth_user")
+    )
+    private User user;
 
-//    last_login_at	            마지막으로 로그인한 시각(로그아웃 시간 아님)	                        DATETIME	            NULL
-//    revoked_at	            “구글 연결 해제” 같은 기능으로 소셜 로그인을 더 이상 쓰지 않게 한 시각	DATETIME	            NULL
+    // provider VARCHAR(20) NOT NULL
+    @Column(name = "provider", nullable = false, length = 20)
+    private String provider;
+
+    // provider_user_id VARCHAR(255) NOT NULL
+    @Column(name = "provider_user_id", nullable = false, length = 255)
+    private String provider_user_id;
+
+    // provider_email VARCHAR(100) NULL
+    @Column(name = "provider_email", length = 100)
+    private String provider_email;
+
+    // provider_email_verified BOOLEAN NOT NULL DEFAULT FALSE
+    @Column(name = "provider_email_verified", nullable = false)
+    private Boolean provider_email_verified;
+
+    // linked_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    @Column(name = "linked_at", nullable = false)
+    private LocalDateTime linked_at;
+
+    @PrePersist
+    void prePersist() {
+        // ddl-auto=create에서 NULL로 들어가 NOT NULL 깨지는 케이스 방지
+        if (provider_email_verified == null) provider_email_verified = Boolean.FALSE;
+        if (linked_at == null) linked_at = LocalDateTime.now();
+    }
+
 }

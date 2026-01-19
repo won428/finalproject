@@ -1,6 +1,9 @@
 package com.example.demo.entity.base;
 
+import com.example.demo.enums.Status;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +22,8 @@ public abstract class BaseRequestTimeEntity extends BasePkEntity {
 
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
+
+    @Column(name = "status", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
 }

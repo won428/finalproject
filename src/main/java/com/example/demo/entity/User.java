@@ -33,11 +33,6 @@ public  class User extends BaseTimeEntity {
 //                      개인정보 보관 기간 지나면 실제 삭제
 //    last_login_at	    마지막 로그인	                            DATETIME	        NULL
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
     @Column(name = "nickname", unique = true, length = 50)
     private String nickname;
 
