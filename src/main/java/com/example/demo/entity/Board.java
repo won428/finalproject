@@ -1,16 +1,19 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Entity
-@Table(name = "")
+@Table(
+        name = "board",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_board_board_code", columnNames = {"board_code"})
+        }
+)
 /*  */
 public class Board {
 //    변수명	                             내용	                                                                규격	                제약조건
@@ -26,8 +29,18 @@ public class Board {
 //    is_active	            상태가 1인 게시판만 목록에 노춞                                                          TINYINT	        NOT NULL DEFAULT 1
 //                          0이면 점검중이거나 폐쇄
 
-//    default_status_code	게시판이 게시글 생성시 내려주는 기본 상태코드.
-//                          게시글이 처음 생성될 때 프론트에서 post.status_code가 NULL로 넘어오면
-//                          R ECRUITING, UNANSWERED, NONE이 기본값이 되어 게시판의 성격에 맞게 기본값을 설정하게 함.
-//                          post 테이블에 행이 INSERT 되기 전에 값을 채워서 항상 NOT NULL로 저장되야 함.	                VARCHAR(30)	    NOT NULL
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "board_id")
+    private Long board_id;
+
+    @Column(name = "board_code", nullable = false, length = 30)
+    private String board_code;
+
+    @Column(name = "board_name", nullable = false, length = 50)
+    private String board_name;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean is_active = Boolean.TRUE;
+
 }

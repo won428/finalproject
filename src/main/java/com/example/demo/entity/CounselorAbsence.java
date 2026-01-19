@@ -1,18 +1,24 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.entity.base.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"counselor_profile", "created_by_user"})
 @Entity
-@Table(name = "")
+@Table(
+        name = "counselor_absence",
+        indexes = {
+                @Index(name = "idx_absence_counselor_range", columnList = "counselor_id, start_at, end_at")
+        }
+)
 /*  */
-public class CounselorAbsence {
+public class CounselorAbsence extends BaseTimeEntity {
 //    변수명	            내용	                                    규격	                제약조건
 //    id		                                                BIGINT	            PK AUTO_INCREMENT
 //    counselor_id	    상태 변경된 상담사 ID(users.id)	        BIGINT	            FK, NOT NULL
@@ -44,4 +50,39 @@ CREATE TABLE counselor_absence (
 		FOREIGN KEY (created_by) REFERENCES users(id)
 ) ENGINE=InnoDB;
  */
+
+    @Column(name = "counselor_id", nullable = false)
+    private Long counselor_id;
+
+    @Column(name = "start_at", nullable = false)
+    private LocalDateTime start_at;
+
+    @Column(name = "end_at")
+    private LocalDateTime end_at;
+
+    @Column(name = "reason", nullable = false, length = 200)
+    private String reason;
+
+    @Column(name = "created_by")
+    private Long created_by;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "counselor_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_absence_counselor")
+    )
+    private CounselorProfile counselor_profile;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "created_by",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_absence_created_by")
+    )
+    private User created_by_user;
+
 }
