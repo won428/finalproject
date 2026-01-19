@@ -6,4 +6,5 @@ public enum Status {
     REJECTED,
     USED,
     UNUSED,
+    REVOKED,
 }
