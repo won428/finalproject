@@ -12,7 +12,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "")
 /* 환불, 취소 내역 */
-public class Refunds {
+public class Refund {
 //    변수명	                내용                      	규격	            제약조건
 //    id	                테이블 PK	                BIGINT	        PK
 //    order_id	            주문 fk	                    BIGINT	        FK

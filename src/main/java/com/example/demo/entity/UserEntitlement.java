@@ -12,7 +12,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "")
 /* 강의 접근 권한 */
-public class UserEntitlements {
+public class UserEntitlement {
 //    변수명	            내용	            규격	        제약조건
 //    id	            테이블 PK	    BIGINT	    PK
 //    course_id	        강의 FK	        BIGINT	    FK, NOT NULL, UNIQUE
