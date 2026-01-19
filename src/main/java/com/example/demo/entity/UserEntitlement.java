@@ -19,7 +19,7 @@ public class UserEntitlement {
 //    user_id	        유저 FK	        BIGINT	    FK, NOT NULL, UNIQUE
 //    status	        상태(승인, 취소)	ENUM	    NOT NULL DEFAULT APPROVED
 //    created_at	    생성 날짜	    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
-
+    
 
 /*  [comments]
 결제 완료가 되면 해당 강의에 대한 접근 권한을 유저에게 부여하고,
