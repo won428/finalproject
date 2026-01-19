@@ -20,12 +20,12 @@ import java.time.LocalDateTime;
                         name = "uk_course_history_course_revision",
                         columnNames = {"course_id", "revision_no"}
                 )
-        },
-        indexes = {
-                @Index(name = "idx_course_history_course", columnList = "course_id"),
-                @Index(name = "idx_course_history_changed_at", columnList = "changed_at"),
-                @Index(name = "idx_course_history_changed_by", columnList = "changed_by")
         }
+//        indexes = {
+//                @Index(name = "idx_course_history_course", columnList = "course_id"),
+//                @Index(name = "idx_course_history_changed_at", columnList = "changed_at"),
+//                @Index(name = "idx_course_history_changed_by", columnList = "changed_by")
+//        }  [flyway로 생성]
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CourseHistory extends BasePkEntity {

@@ -1,18 +1,22 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"settlement", "adCampaign"})
 @Entity
-@Table(name = "")
+@Table(name = "financial_ledger")
 /* 손익관리용 자금 흐름 관리 대장 */
-public class FinancialLedger {
+public class FinancialLedger extends BasePkEntity {
 //    변수명	            내용	                    규격	            제약조건
 //    id	            고유 ID	                BIGINT	        PK, AUTO_INCREMENT
 //    settlement_id 	정산내역(참조)	        BIGINT	        FK, NULL
@@ -33,9 +37,36 @@ public class FinancialLedger {
 */
 
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "settlement_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "fk_financial_ledger_settlement")
+    )
+    private Settlement settlement;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "ad_campaign_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "fk_financial_ledger_ad_campaign")
+    )
+    private AdCampaigns adCampaign;
 
-/*  [DDL]
+    @Column(name = "transaction_type", nullable = false, length = 10)
+    private String transactionType;
+
+    @Column(name = "amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+
+    @CreationTimestamp
+    @Column(name = "transaction_date", updatable = false)
+    private LocalDateTime transactionDate;
+
+    @Column(name = "note", length = 500)
+    private String note;
+
+    /*  [DDL]
 CREATE TABLE financial_ledger (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
 

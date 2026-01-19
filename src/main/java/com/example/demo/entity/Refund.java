@@ -1,18 +1,24 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import com.example.demo.enums.FailCode;
+import com.example.demo.enums.ReasonCode;
+import com.example.demo.enums.Status;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"order", "payment"})
 @Entity
-@Table(name = "")
+@Table(name = "refund")
 /* 환불, 취소 내역 */
-public class Refund {
+public class Refund extends BasePkEntity {
 //    변수명	                내용                      	규격	            제약조건
 //    id	                테이블 PK	                BIGINT	        PK
 //    order_id	            주문 fk	                    BIGINT	        FK
@@ -27,4 +33,54 @@ public class Refund {
 //    failed_at	            실패 시간	                DATETIME
 //    fail_code	            실패 사유(간략히)	            ENUM
 //    fail_detail	        실패 사유(자세히)	            VARCHAR
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "order_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_refund_order")
+    )
+    private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "payment_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_refund_payment")
+    )
+    private Payment payment;
+
+    @Column(name = "status", length = 20, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
+
+    @Column(name = "reason_code", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
+    private ReasonCode reasonCode;
+
+    @Column(name = "reason_detail", length = 500)
+    private String reasonDetail;
+
+    @Column(name = "provider_refund_id", length = 100, unique = true)
+    private String providerRefundId;
+
+    @Column(name = "amount", nullable = false)
+    private Long amount;
+
+    @CreationTimestamp
+    @Column(name = "requested_at", nullable = false, updatable = false)
+    private LocalDateTime requestedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @Column(name = "failed_at")
+    private LocalDateTime failedAt;
+
+    @Column(name = "fail_code", length = 30)
+    @Enumerated(EnumType.STRING)
+    private FailCode failCode;
+
+    @Column(name = "fail_detail", length = 500)
+    private String failDetail;
 }

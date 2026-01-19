@@ -1,18 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "order")
 @Entity
-@Table(name = "")
+@Table(name = "payment")
 /* 결제완료 */
-public class Payment {
+public class Payment extends BasePkEntity {
 //    변수명	                내용	                            규격	        제약조건
 //    id	                테이블 PK	                    BIGINT	    PK
 //    order_id	            주문 내역 FK	                    BIGINT	    FK
@@ -22,5 +25,35 @@ public class Payment {
 //    provider_payment_id	pg 거래키	                    VARCHAR	    UNIQUE
 //    requested_at	        요청 시간	                    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    completed_at	        성공 시간	                    DATETIME
-//    requested_at	        실패 시간	                    DATETIME
+//    failed_at	        실패 시간	                    DATETIME
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "order_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_payment_order")
+    )
+    private Order order;
+
+    @Column(name = "provider", nullable = false, length = 30)
+    private String provider;
+
+    @Column(name = "amount", nullable = false)
+    private Long amount;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @Column(name = "provider_payment_id", length = 100, unique = true)
+    private String providerPaymentId;
+
+    @CreationTimestamp
+    @Column(name = "requested_at", nullable = false, updatable = false)
+    private LocalDateTime requestedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @Column(name = "failed_at")
+    private LocalDateTime failedAt;
 }
