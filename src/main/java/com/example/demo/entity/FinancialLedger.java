@@ -12,7 +12,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "")
 /* 손익관리용 자금 흐름 관리 대장 */
-public class Financial_ledger {
+public class FinancialLedger {
 //    변수명	            내용	                    규격	            제약조건
 //    id	            고유 ID	                BIGINT	        PK, AUTO_INCREMENT
 //    settlement_id 	정산내역(참조)	        BIGINT	        FK, NULL
