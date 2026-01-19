@@ -1,18 +1,23 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "parent")
 @Entity
-@Table(name = "")
+@Table(
+        name = "chat_flows",
+        indexes = {
+                @Index(name = "idx_parent_id", columnList = "parent_id")
+        }
+)
 /*  */
-public class ChatFlows {
+public class ChatFlows extends BasePkEntity {
 //    변수명	                                내용	                                                     규격	        제약조건
 //    id		                                                                                    BIGINT	        PK, AUTO_INCREMENT
 
@@ -43,12 +48,45 @@ public class ChatFlows {
 /*  [comments]
 chat_flows 테이블 내에서 셀프 참조를 반복하는 재귀적 참조구조.
 트리 구조로 하위 노드를 타고 내려가며 테이블을 여러개로 나눌 필요 없이 한 테이블로 기능 구현이 가능함.
+
+
+셀프 참조(부모 포인터) 자체는 이미 구현됨
+
+**삭제 연쇄(CASCADE)**는 DDL/Flyway에서 적용해야 동일 동작
+
+필요하면 children 컬렉션을 추가하면 트리 탐색이 더 편해짐 (선택)
 */
 
 
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "parent_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "fk_chat_flows_parent")
+    )
+    private ChatFlows parent;
 
-/*  [DDL]
+    @Column(name = "node_type", nullable = false, length = 20)
+    private String nodeType;
+
+    @Column(name = "button_text", nullable = false, length = 100)
+    private String buttonText;
+
+    @Lob
+    @Column(name = "response_message")
+    private String responseMessage;
+
+    @Column(name = "action_code", length = 50)
+    private String actionCode;
+
+    @Column(name = "display_order")
+    private Integer displayOrder = 0;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    /*  [DDL]
 CREATE TABLE chat_flows (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	parent_id BIGINT NULL,                 -- 상위 노드 ID (NULL이면 최상위 루트 메뉴)
@@ -64,5 +102,3 @@ CREATE TABLE chat_flows (
 );
 */
 }
-
-

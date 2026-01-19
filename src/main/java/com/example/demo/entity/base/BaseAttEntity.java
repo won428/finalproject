@@ -17,6 +17,9 @@ public abstract class BaseAttEntity extends BasePkEntity{
     @Enumerated(EnumType.STRING)
     private StorageProvider storageProvider;
 
+    @Column(name = "original_file_name", nullable = false, length = 255)
+    private String originalFileName;
+
     @Column(name = "s3_key", nullable = false, updatable=false, length = 1024)
     private String s3Key;
 

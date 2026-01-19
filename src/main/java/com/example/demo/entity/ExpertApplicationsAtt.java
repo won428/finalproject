@@ -1,18 +1,18 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BaseAttEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"expertApplication"})
 @Entity
-@Table(name = "")
+@Table(name = "expert_applications_att")
 /* 전문가 신청내역 파일첨부 */
-public class ExpertApplicationsAtt {
+public class ExpertApplicationsAtt extends BaseAttEntity {
     //    변수명	                내용	                    규격	        제약조건
 //    id	                    테이블 PK	            BIGINT	    PK
 //    expert_application_id	    신청 내역 FK	            BIGINT	    FK
@@ -24,4 +24,8 @@ public class ExpertApplicationsAtt {
 //    file_size_bytes	        파일 사이즈	            BIGINT  	NOT NULL
 //    checksum	                해쉬나 태그	            VARCHAR	    NOT NULL
 //    created_at	            등록 날짜	            DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "expert_application_id", nullable = false, foreignKey = @ForeignKey(name = "fk_expert_app_att_application") )
+    private ExpertApplication expertApplication;
 }

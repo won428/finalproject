@@ -1,18 +1,28 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "instructor")
 @Entity
-@Table(name = "")
+@Table(
+        name = "settlements",
+        indexes = {
+                @Index(name = "idx_instructor_period", columnList = "instructor_id, period_start")
+        }
+)
 /* 정산 내역 */
-public class Settlements {
+public class Settlement extends BasePkEntity {
     //    변수명	                내용	                규격	                제약조건
 //    id	                고유 ID	            BIGINT	            PK, AUTO_INCREMENT
 //    instructor_id	        정산받을 강사 ID	    BIGINT	            FK, NOT NULL
@@ -32,7 +42,46 @@ public class Settlements {
 //    created_at	        행 생성일	        DATETIME	        DEFAULT CURRENT_TIMESTAMP
 
 
-/*  [DDL]
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "instructor_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_settlement_instructor")
+    )
+    private User instructor;
+
+    @Column(name = "period_start", nullable = false)
+    private LocalDate periodStart;
+
+    @Column(name = "period_end", nullable = false)
+    private LocalDate periodEnd;
+
+    @Column(name = "total_sales_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal totalSalesAmount;
+
+    @Column(name = "platform_fee_rate", nullable = false, precision = 5, scale = 2)
+    private BigDecimal platformFeeRate;
+
+    @Column(name = "platform_fee_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal platformFeeAmount;
+
+    @Column(name = "tax_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal taxAmount;
+
+    @Column(name = "final_payout_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal finalPayoutAmount;
+
+    @Column(name = "status", length = 20)
+    private String status = "PENDING";
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    /*  [DDL]
 CREATE TABLE settlements (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	instructor_id BIGINT NOT NULL,          -- 정산 받을 강사 ID
