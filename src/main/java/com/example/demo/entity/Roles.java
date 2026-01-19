@@ -1,18 +1,28 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.example.demo.entity.base.BasePkEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor
+@ToString(exclude = {"user_roles"})
 @Entity
-@Table(name = "")
+@Table(
+        name = "roles",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_role_code", columnNames = {"code"})
+        }
+)
 /* 유저 역할 */
-public class Roles {
+public class Roles extends BasePkEntity {
 //    변수명   	내용                  	규격	            제약조건
 //    id		                        BIGINT	        AUTO_INCREMENT PK
 //    code	    역할 코드
@@ -23,4 +33,11 @@ public class Roles {
 //              ACCOUNT_ADMINCOUNSELOR/
 
 //    name	    표시명	                VARCHAR(50)	    NOT NULL
+
+    @Column(name = "code", nullable = false, length = 50, unique = true)
+    private String code;
+
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
+
 }

@@ -33,7 +33,7 @@ public  class User extends BaseTimeEntity {
 //                      개인정보 보관 기간 지나면 실제 삭제
 //    last_login_at	    마지막 로그인	                            DATETIME	        NULL
 
-    @Column(name = "nickname", unique = true, length = 50)
+    @Column(name = "nickname", nullable = false, unique = true, length = 50)
     private String nickname;
 
     @Column(name = "birth")
@@ -42,10 +42,10 @@ public  class User extends BaseTimeEntity {
     @Column(name = "status", nullable = false, length = 20)
     private String status = "ACTIVE";
 
-    @Column(name = "address", length = 50)
+    @Column(name = "address") // length 속성 default가 255임.
     private String address;
 
-    @Column(name = "address_detail", length = 50)
+    @Column(name = "address_detail") // length 속성 default가 255임.
     private String addressDetail;
 
     @Column(name = "deleted_at")
