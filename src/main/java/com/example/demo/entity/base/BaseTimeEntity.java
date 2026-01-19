@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public abstract class BaseTimeEntity extends BasePkEntity{
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false) // 수정 시에는 건드리지 않음
+    @Column(name = "created_at", updatable = false, nullable = false, columnDefinition = "DEFAULT CURRENT_TIMESTAMP") // 수정 시에는 건드리지 않음
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
