@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "course_order")
 @NoArgsConstructor
 /* 강의 주문 */
-public class CourseOrder extends BasePkEntity {
+public class Order extends BasePkEntity {
 
     // id              테이블 PK        BIGINT      PK  (BasePkEntity)
     // order_code       주문 번호        VARCHAR     UNIQUE, NOT NULL

@@ -24,8 +24,8 @@ public  class User extends BaseTimeEntity {
 //    status	        상태                                     VARCHAR(20)	        NOT NULL DEFAULT ‘ACTIVE’
 //                      활성화 / 정지 / 탈퇴/ 휴면
 //                      ACTIVE/ SUSPEND /WITHDRAWN / DORMANT
-//    address	        큰 주소(도로명 주소까지)	                VARCHAR(50)	        NULL
-//    address_detail	상세주소(도로명 주소 이후)	                VARCHAR(50)	        NULL
+//    address	        큰 주소(도로명 주소까지)	                VARCHAR(255)	        NULL
+//    address_detail	상세주소(도로명 주소 이후)	                VARCHAR(255)	        NULL
 //    created_at	    행이 생성된 날짜	                        DATETIME	        NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    updated_at	    행 수정된 날짜(닉네임 변경, 생년월일 변경 등)	DATETIME	        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 //    deleted_at	    탈퇴일                                   DATETIME	        NULL
