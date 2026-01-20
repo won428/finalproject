@@ -1,16 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"post", "author", "parent_comment"})
 @Entity
-@Table(name = "")
+@Table(
+        name = "comment",
+        indexes = {
+                @Index(name = "ix_comment_post_created", columnList = "post_id, created_at")
+        }
+)
 /*  */
 public class Comment {
 //    변수명	            내용	                        규격	        제약조건
@@ -23,6 +28,69 @@ public class Comment {
 //    content	        내용	LONGTEXT	                        NOT NULL
 //    created_at	    게시일	                    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    deleted_at	    소프트 삭제용	                DATETIME	NULL
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_id")
+    private Long comment_id;
+
+    @Column(name = "post_id", nullable = false)
+    private Long post_id;
+
+    @Column(name = "author_id", nullable = false)
+    private Long author_id;
+
+    @Column(name = "parent_comment_id")
+    private Long parent_comment_id;
+
+    @Lob
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "is_answer", nullable = false)
+    private Boolean is_answer = Boolean.FALSE;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime created_at;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
+    // 읽기 전용 연관관계
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "post_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_comment_post")
+    )
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "author_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_comment_author")
+    )
+    private User author;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "parent_comment_id",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_comment_parent")
+    )
+    private Comment parent_comment;
+
+    @PrePersist
+    void prePersist() {
+        if (created_at == null) created_at = LocalDateTime.now();
+        if (is_answer == null) is_answer = Boolean.FALSE;
+    }
 
 
 /*  [DDL]

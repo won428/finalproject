@@ -1,16 +1,23 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"board", "board_status", "author"})
 @Entity
-@Table(name = "")
+@Table(
+        name = "post",
+        indexes = {
+                // JPA @Index는 DESC 표현 못함 → DESC 필요하면 Flyway에서
+                @Index(name = "ix_post_board_created", columnList = "board_id, created_at"),
+                @Index(name = "ix_post_board_status_created", columnList = "board_id, status_code, created_at")
+        }
+)
 /* 게시글 */
 public class Post {
 //    변수명	내용	규격	제약조건
@@ -34,7 +41,100 @@ public class Post {
 //    like_count	좋아요 수	            INT	            NOT NULL DEFAULT 0
 //    comment_count	댓글 수	                INT	NOT         NULL DEFAULT 0
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
+    private Long post_id;
 
+    @Column(name = "board_id", nullable = false)
+    private Long board_id;
+
+    @Column(name = "status_code", nullable = false, length = 30)
+    private String status_code;
+
+    @Column(name = "author_id", nullable = false)
+    private Long author_id;
+
+    @Column(name = "title", nullable = false, length = 200)
+    private String title;
+
+    @Lob
+    @Column(name = "content", nullable = false, columnDefinition = "MEDIUMTEXT")
+    private String content;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime created_at;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updated_at;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deleted_at;
+
+    @Column(name = "view_count", nullable = false)
+    private Integer view_count = 0;
+
+    @Column(name = "like_count", nullable = false)
+    private Integer like_count = 0;
+
+    @Column(name = "comment_count", nullable = false)
+    private Integer comment_count = 0;
+
+    @Column(name = "answer_count", nullable = false)
+    private Integer answer_count = 0;
+
+    @Column(name = "accepted_comment_id")
+    private Long accepted_comment_id;
+
+    // 읽기 전용 연관관계
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "board_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_post_board")
+    )
+    private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumns(
+            foreignKey = @jakarta.persistence.ForeignKey(name = "fk_post_board_status"),
+            value = {
+                    @JoinColumn(
+                            name = "board_id",
+                            referencedColumnName = "board_id",
+                            insertable = false,
+                            updatable = false
+                    ),
+                    @JoinColumn(
+                            name = "status_code",
+                            referencedColumnName = "status_code",
+                            insertable = false,
+                            updatable = false
+                    )
+            }
+    )
+    private BoardStatus board_status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "author_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_post_author")
+    )
+    private User author;
+
+    @PrePersist
+    void prePersist() {
+        if (created_at == null) created_at = LocalDateTime.now();
+        if (view_count == null) view_count = 0;
+        if (like_count == null) like_count = 0;
+        if (comment_count == null) comment_count = 0;
+        if (answer_count == null) answer_count = 0;
+    }
 
 /*  [DDL]
 CREATE TABLE post (

@@ -1,16 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Entity
-@Table(name = "")
+@Table(
+        name = "tag",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_tag_tag_key", columnNames = {"tag_key"})
+        }
+)
 /* 게시글 태그 */
 public class Tag {
 //    변수명	        내용	                                 규격	            제약조건
@@ -21,6 +26,27 @@ public class Tag {
 //                  ex) mysql
 //    created_at	생성일	                             DATETIME	        NOT NULL DEFAULT  CURRENT_TIMESTAMP
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "tag_id")
+    private Long tag_id;
+
+    // name VARCHAR(50) NOT NULL
+    @Column(name = "name", nullable = false, length = 50)
+    private String name;
+
+    // tag_key VARCHAR(60) NOT NULL UNIQUE
+    @Column(name = "tag_key", nullable = false, length = 60, unique = true)
+    private String tag_key;
+
+    // created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime created_at;
+
+    @PrePersist
+    void prePersist() {
+        if (created_at == null) created_at = LocalDateTime.now();
+    }
 
 /*  [comments]
 post 테이블에 tag_id가 참조되어있지 않기 때문에 강제성 없음.

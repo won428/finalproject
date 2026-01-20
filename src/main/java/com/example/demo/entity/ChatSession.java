@@ -1,18 +1,91 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.example.demo.entity.base.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"user", "counselor_profile"})
 @Entity
-@Table(name = "")
+@Table(
+        name = "chat_session",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_session_open_key", columnNames = {"open_key"})
+        },
+        indexes = {
+                @Index(name = "idx_session_user_created", columnList = "user_id, created_at"),
+                @Index(name = "idx_session_counselor_created", columnList = "counselor_id, created_at"),
+                @Index(name = "idx_session_status", columnList = "status"),
+
+                // WAITING 큐 조회 최적화
+                @Index(name = "idx_session_status_queued", columnList = "status, queued_at"),
+
+                // 상담사별 상태 조회 최적화
+                @Index(name = "idx_session_counselor_status", columnList = "counselor_id, status, created_at")
+        }
+)
 /*  */
-public class ChatSession {
+public class ChatSession extends BaseTimeEntity {
+    @Column(name = "user_id", nullable = false)
+    private Long user_id;
+
+    @Column(name = "counselor_id")
+    private Long counselor_id;
+
+    @Column(name = "open_key", nullable = false, length = 36, unique = true)
+    private String open_key;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @Column(name = "close_reason", length = 50)
+    private String close_reason;
+
+    @Column(name = "ended_by", length = 20)
+    private String ended_by;
+
+    @Column(name = "queued_at", nullable = false)
+    private LocalDateTime queued_at;
+
+    @Column(name = "assigned_at")
+    private LocalDateTime assigned_at;
+
+    @Column(name = "started_at")
+    private LocalDateTime started_at;
+
+    @Column(name = "ended_at")
+    private LocalDateTime ended_at;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_session_user")
+    )
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "counselor_id",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_session_counselor")
+    )
+    private CounselorProfile counselor_profile;
+
+    @PrePersist
+    void prePersist() {
+        if (status == null) status = "WAITING";
+        if (queued_at == null) queued_at = LocalDateTime.now();
+        if (open_key == null) open_key = UUID.randomUUID().toString();
+    }
 
 //    변수명	            내용	                                                        규격	                                            제약조건
 //    id	            채팅방 ID	                                                BIGINT	                                        PK, AUTO_INCREMENT
@@ -58,8 +131,9 @@ public class ChatSession {
 2. 메시지 확인이 필요할 경우 chat_session.id로 chat_mssage를 참조해서 메시지 확인.
 3. 채팅 메시지를 chat_session 테이블로 하나의 대화에 귀속시켜서 정렬/검색/페이징 기능이 가능해짐.
 4. counselor_id는 배정 전까지 NULL이었다가 배정 후 채워짐.
-5. “open_key”는 값을 직접 넣는게 아니라, staus의 상태에 따라 DB가 알아서 계산 후 저장하는 생성컬럼임.
-    open_key에 값이 있으면 INSERT가 실패하게 되는데 스프링에서 이 실패를 잡은 후 “이미 진행중인 상담이 있습니다.”라고 응답하고, 기존 열린 세션으로 리다이렉트하면 되는 것.
+5. 적용 가이드
+• 중복 세션 방지: 이전 DDL에 있던 Generated Column을 제거했으므로, "한 유저가 동시에 두 개의 상담을 못 하게 하는 로직"은 **애플리케이션(Service Layer)**에서 status가 'ACTIVE'인 방이 있는지 체크하는 방식으로 처리해야 함. (UUID 사용을 위해 DB 복잡도를 낮춤)
+• open_key 생성: Java에서 UUID.randomUUID().toString()으로 생성해서 Insert 하면 됨.
 */
 
 
@@ -67,39 +141,48 @@ public class ChatSession {
 
 /*  [DDL]
 CREATE TABLE chat_session (
-	id BIGINT AUTO_INCREMENT PRIMARY KEY,
-	user_id BIGINT NOT NULL,
-	counselor_id BIGINT NULL,   -- 배정 전에는 NULL
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-	status VARCHAR(20) NOT NULL,      -- QUEUED/CONNECTING/ACTIVE/UNAVAILABLE/CLOSED
-	close_reason VARCHAR(40) NULL,    -- OUT_OF_HOURS/GLOBAL_CLOSED/NO_COUNSELOR/COUNSELOR_ABSENT/TIMEOUT/USER_ENDED/COUNSELOR_ENDED 등
-	ended_by VARCHAR(20) NULL,        -- USER/COUNSELOR/SYSTEM
+    -- 1. 참여자 정보
+    user_id         BIGINT NOT NULL,
+    counselor_id    BIGINT NULL,   -- 대기 중일 때는 NULL, 배정 후 상담사 ID
 
-	queued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	assigned_at DATETIME NULL,
-	started_at DATETIME NULL,
-	ended_at DATETIME NULL,
+    -- 2. 세션 식별 및 보안
+    open_key        VARCHAR(36) NOT NULL, -- 외부 공개용 UUID (API 호출용)
 
-	-- “열린 세션”을 유저당 1개만 허용하고 싶으면(권장)
-	open_key TINYINT GENERATED ALWAYS AS (
-		CASE
-			WHEN status IN ('QUEUED','CONNECTING','ACTIVE') THEN 1
-			ELSE NULL
-		END
-	) STORED,
+    -- 3. 상태 및 종료 사유
+    status          VARCHAR(20) NOT NULL DEFAULT 'WAITING', -- WAITING, ACTIVE, CLOSED 등
+    close_reason    VARCHAR(50) NULL,  -- USER_LEFT, COUNSELOR_LEFT, TIME_OUT 등
+    ended_by        VARCHAR(20) NULL,  -- SYSTEM, USER, COUNSELOR
 
-	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- 4. 시간 기록 (운영 지표용)
+    queued_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 대기열 진입 시간
+    assigned_at     DATETIME NULL, -- 상담사 배정 시간
+    started_at      DATETIME NULL, -- 실제 대화 시작 시간
+    ended_at        DATETIME NULL, -- 종료 시간
 
-	KEY idx_session_user_created (user_id, created_at),
-	KEY idx_session_counselor_created (counselor_id, created_at),
-	KEY idx_session_status (status),
-	UNIQUE KEY uk_user_open (user_id, open_key),
+    -- 5. 시스템 메타데이터
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-	CONSTRAINT fk_session_user
-		FOREIGN KEY (user_id) REFERENCES users(id),
-	CONSTRAINT fk_session_counselor
-		FOREIGN KEY (counselor_id) REFERENCES users(id)
-) ENGINE=InnoDB;
+    -- [제약 조건 및 인덱스]
+
+    -- 1) 외부 공개 키는 유일해야 함
+    CONSTRAINT uk_session_open_key UNIQUE (open_key),
+
+    CONSTRAINT fk_session_user
+        FOREIGN KEY (user_id) REFERENCES users (id),
+
+    -- [핵심] 상담사는 반드시 프로필이 있는 유저여야 함
+    CONSTRAINT fk_session_counselor
+        FOREIGN KEY (counselor_id) REFERENCES counselor_profile (counselor_id),
+
+    INDEX idx_session_user_created (user_id, created_at),
+    INDEX idx_session_counselor_created (counselor_id, created_at),
+    INDEX idx_session_status (status),
+    INDEX idx_session_status_queued (status, queued_at),
+    INDEX idx_session_counselor_status (counselor_id, status, created_at)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 */
 }
