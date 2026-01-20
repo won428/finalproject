@@ -1,0 +1,12 @@
+스키마(DDL) 변경할 때는 같은 폴더(resources/db/migration)에 V2__xxx.sql 같은 새 파일을 추가하면, 앱 실행 시 Flyway가 자동으로 “아직 안 적용된 마이그레이션만” 순서대로 적용
+
+[동작 규칙]
+V1__init.sql 이미 적용된 상태면 다시 안 돎
+새로 만든 V2__...sql → 자동 실행
+버전은 숫자 오름차순으로 실행 (V2, V3, V10 …)
+
+[파일명 규칙]
+V2__add_course_status.sql
+V3__alter_user_columns.sql
+V4__create_xxx_table.sql
+언더바 2개 __ 필수, 설명은 아무거나 가능(영문으로 쓰세요)
