@@ -1,7 +1,4 @@
--- Flyway V2 baseline schema (cleaned from mysqldump --no-data)
--- Notes:
--- 1) This script creates tables first, then adds foreign keys at the end to avoid dependency ordering issues.
--- 2) DO NOT include DROP TABLE in versioned migrations; use Flyway clean in dev if you need resets.
+-- Flyway V1 baseline schema
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
