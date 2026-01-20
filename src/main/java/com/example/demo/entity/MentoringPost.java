@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@ToString(exclude = {"tags", "user"})
+@ToString(exclude = {"user"})
 @Entity
 @Table(name = "mentoring_posts")
 /* 멘토링 글 목록 */
