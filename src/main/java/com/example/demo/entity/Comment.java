@@ -2,13 +2,15 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"post", "author", "parent_comment"})
+@ToString(exclude = {"post", "author", "parentComment"}) // 연관관계 필드명 변경 반영
 @Entity
 @Table(
         name = "comment",
@@ -16,51 +18,52 @@ import java.time.LocalDateTime;
                 @Index(name = "ix_comment_post_created", columnList = "post_id, created_at")
         }
 )
-/*  */
 public class Comment {
-//    변수명	            내용	                        규격	        제약조건
-//    comment_id	    댓글 번호	                BIGINT	    PK,
-//    comment.id        셀프참조(대댓글용 계층구조)
-//    AUTO_INCREMENT
-//    post_id	        게시글 번호	                BIGINT	    FK, NOT NULL
-//    author_id	        작성자(users.id)	            BIGINT	    NOT NULL
-//    parent_comment_id	대댓글 번호(트리형태)	        BIGINT	    NULL
-//    content	        내용	LONGTEXT	                        NOT NULL
-//    created_at	    게시일	                    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
-//    deleted_at	    소프트 삭제용	                DATETIME	NULL
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long comment_id;
+    private Long commentId; // Java: commentId, DB: comment_id
 
+    // [1] FK용 컬럼 직접 매핑 (DB 컬럼명: post_id)
     @Column(name = "post_id", nullable = false)
-    private Long post_id;
+    private Long postId;
 
+    // [2] FK용 컬럼 직접 매핑 (DB 컬럼명: author_id)
     @Column(name = "author_id", nullable = false)
-    private Long author_id;
+    private Long authorId;
 
-    @Column(name = "parent_comment_id")
-    private Long parent_comment_id;
+    // [3] FK용 컬럼 직접 매핑 (DB 컬럼명: parent_comment_id)
+    @Column(name = "parent_comment_id", nullable = true) // 부모 댓글 없을 수 있음
+    private Long parentCommentId;
 
+    // [4] Content: TEXT 타입 명시
     @Lob
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "is_answer", nullable = false)
-    private Boolean is_answer = Boolean.FALSE;
+    // [5] is_answer: TINYINT + Default 0 설정
+    // Boolean false -> DB 0 저장
+    @Column(name = "is_answer", nullable = false, columnDefinition = "TINYINT")
+    @ColumnDefault("0")
+    private Boolean isAnswer = false;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime created_at;
+    // [6] created_at: DB Default 설정
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
 
-    // 읽기 전용 연관관계
+    // ==========================================
+    // [연관관계 매핑] - 읽기 전용 (insertable/updatable = false)
+    // ==========================================
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "post_id",
-            nullable = false,
             insertable = false,
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_comment_post")
@@ -70,7 +73,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "author_id",
-            nullable = false,
             insertable = false,
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_comment_author")
@@ -84,35 +86,7 @@ public class Comment {
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_comment_parent")
     )
-    private Comment parent_comment;
+    private Comment parentComment;
 
-    @PrePersist
-    void prePersist() {
-        if (created_at == null) created_at = LocalDateTime.now();
-        if (is_answer == null) is_answer = Boolean.FALSE;
-    }
-
-
-/*  [DDL]
-CREATE TABLE comment (
-	comment_id        BIGINT PRIMARY KEY AUTO_INCREMENT,
-	post_id           BIGINT NOT NULL,
-	author_id         BIGINT NOT NULL,
-	parent_comment_id BIGINT NULL,
-	content           TEXT NOT NULL,
-
-	-- Q&A에서 “답변 댓글” 표시용(선택)
-	is_answer TINYINT NOT NULL DEFAULT 0,
-
-	created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	deleted_at        DATETIME NULL,
-
-	CONSTRAINT fk_comment_post
-		FOREIGN KEY (post_id) REFERENCES post(post_id),
-	CONSTRAINT fk_comment_parent
-		FOREIGN KEY (parent_comment_id) REFERENCES comment(comment_id)
-	);
-
-CREATE INDEX ix_comment_post_created    ON comment(post_id, created_at);
-*/
+    // @PrePersist 제거 (DB Default로 대체됨)
 }

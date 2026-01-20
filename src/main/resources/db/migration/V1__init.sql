@@ -14,9 +14,9 @@ CREATE TABLE `ad_campaigns` (
 `contract_amount` decimal(15,2) NOT NULL,
   `end_date` date NOT NULL,
   `start_date` date NOT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `status` varchar(20) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'ACTIVE',
   `type` varchar(20) NOT NULL,
   `client_name` varchar(100) NOT NULL,
   `title` varchar(200) NOT NULL,
@@ -24,125 +24,171 @@ CREATE TABLE `ad_campaigns` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `board` (
-`is_active` bit(1) NOT NULL,
   `board_id` bigint NOT NULL AUTO_INCREMENT,
   `board_code` varchar(30) NOT NULL,
   `board_name` varchar(50) NOT NULL,
+
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+
   PRIMARY KEY (`board_id`),
+
   UNIQUE KEY `uk_board_board_code` (`board_code`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `board_status` (
-`is_default` bit(1) NOT NULL,
-  `is_filterable` bit(1) NOT NULL,
-  `sort_order` int NOT NULL,
   `board_id` bigint NOT NULL,
-  `default_marker` varchar(30) DEFAULT NULL,
-  `label` varchar(30) NOT NULL,
   `status_code` varchar(30) NOT NULL,
-  PRIMARY KEY (`board_id`,`status_code`),
-  UNIQUE KEY `uk_board_status_one_default` (`board_id`,`default_marker`),
-  KEY `idx_board_status_board_sort` (`board_id`,`sort_order`)
+
+  `label` varchar(30) NOT NULL,
+  `sort_order` int NOT NULL,
+
+  `is_filterable` tinyint(1) NOT NULL DEFAULT 1,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+
+  `default_marker` VARCHAR(30) GENERATED ALWAYS AS (CASE WHEN is_default = 1 THEN status_code ELSE NULL END) STORED,
+
+  PRIMARY KEY (`board_id`, `status_code`),
+
+  UNIQUE KEY `uk_board_status_one_default` (`board_id`, `default_marker`),
+  KEY `idx_board_status_board_sort` (`board_id`, `sort_order`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_flows` (
-`display_order` int DEFAULT NULL,
-  `is_active` bit(1) DEFAULT NULL,
+`display_order` int DEFAULT 0,
+  `is_active` bit(1) DEFAULT 1 NOT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
   `parent_id` bigint DEFAULT NULL,
+  `next_node_id` bigint NULL,
   `node_type` varchar(20) NOT NULL,
   `action_code` varchar(50) DEFAULT NULL,
-  `button_text` varchar(100) NOT NULL,
-  `response_message` tinytext,
+  `button_text` varchar(100) DEFAULT NULL,
+  `response_message` text NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_parent_id` (`parent_id`)
+  KEY `idx_parent_order` (`parent_id`, `display_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_message` (
-`created_at` datetime(6) NOT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `sender_user_id` bigint DEFAULT NULL,
   `session_id` bigint NOT NULL,
-  `message_type` varchar(20) NOT NULL,
   `sender_type` varchar(20) NOT NULL,
-  `content` text NOT NULL,
+  `sender_user_id` bigint DEFAULT NULL,
+
+  `message_type` varchar(20) NOT NULL DEFAULT 'TEXT',
+  `content` TEXT NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
-  KEY `idx_msg_session_created` (`session_id`,`created_at`),
-  KEY `idx_msg_session_id` (`session_id`,`id`),
+
+  KEY `idx_msg_session_created` (`session_id`, `created_at`),
+  KEY `idx_msg_session_id` (`session_id`, `id`),
+
+  KEY `fk_msg_session` (`session_id`),
   KEY `fk_msg_sender_user` (`sender_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_read_state` (
-`created_at` datetime(6) NOT NULL,
-  `last_read_at` datetime(6) DEFAULT NULL,
-  `last_read_message_id` bigint DEFAULT NULL,
-  `reader_user_id` bigint NOT NULL,
   `session_id` bigint NOT NULL,
-  `updated_at` datetime(6) NOT NULL,
-  PRIMARY KEY (`reader_user_id`,`session_id`),
+  `reader_user_id` bigint NOT NULL,
+  `last_read_message_id` bigint DEFAULT NULL,
+  `last_read_at` datetime(6) DEFAULT NULL,
+
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (`session_id`, `reader_user_id`),
+
   KEY `idx_read_state_last_msg` (`last_read_message_id`),
-  KEY `idx_read_state_reader` (`reader_user_id`,`session_id`),
-  KEY `fk_read_state_session` (`session_id`)
+  KEY `idx_read_state_reader` (`reader_user_id`, `session_id`),
+
+  KEY `fk_read_state_session` (`session_id`),
+  KEY `fk_read_state_reader` (`reader_user_id`),
+  KEY `fk_read_state_last_message` (`last_read_message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_session` (
-`assigned_at` datetime(6) DEFAULT NULL,
-  `counselor_id` bigint DEFAULT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `ended_at` datetime(6) DEFAULT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `queued_at` datetime(6) NOT NULL,
-  `started_at` datetime(6) DEFAULT NULL,
-  `updated_at` datetime(6) NOT NULL,
   `user_id` bigint NOT NULL,
-  `ended_by` varchar(20) DEFAULT NULL,
-  `status` varchar(20) NOT NULL,
+  `counselor_id` bigint DEFAULT NULL,
+
   `open_key` varchar(36) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'WAITING',
   `close_reason` varchar(50) DEFAULT NULL,
+  `ended_by` varchar(20) DEFAULT NULL,
+
+  `queued_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  `assigned_at` datetime(6) DEFAULT NULL,
+  `started_at` datetime(6) DEFAULT NULL,
+  `ended_at` datetime(6) DEFAULT NULL,
+
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
+
   UNIQUE KEY `uk_session_open_key` (`open_key`),
-  KEY `idx_session_user_created` (`user_id`,`created_at`),
-  KEY `idx_session_counselor_created` (`counselor_id`,`created_at`),
+
+  KEY `idx_session_user_created` (`user_id`, `created_at`),
+  KEY `idx_session_counselor_created` (`counselor_id`, `created_at`),
   KEY `idx_session_status` (`status`),
-  KEY `idx_session_status_queued` (`status`,`queued_at`),
-  KEY `idx_session_counselor_status` (`counselor_id`,`status`,`created_at`)
+  KEY `idx_session_status_queued` (`status`, `queued_at`),
+  KEY `idx_session_counselor_status` (`counselor_id`, `status`, `created_at`),
+
+  KEY `fk_session_user` (`user_id`),
+  KEY `fk_session_counselor` (`counselor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `comment` (
-`is_answer` bit(1) NOT NULL,
-  `author_id` bigint NOT NULL,
   `comment_id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) NOT NULL,
-  `deleted_at` datetime(6) DEFAULT NULL,
-  `parent_comment_id` bigint DEFAULT NULL,
   `post_id` bigint NOT NULL,
-  `content` text NOT NULL,
+  `author_id` bigint NOT NULL,
+  `parent_comment_id` bigint DEFAULT NULL,
+
+  `content` TEXT NOT NULL,
+
+  `is_answer` tinyint NOT NULL DEFAULT 0,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  `deleted_at` datetime(6) DEFAULT NULL,
+
   PRIMARY KEY (`comment_id`),
-  KEY `ix_comment_post_created` (`post_id`,`created_at`),
-  KEY `fk_comment_author` (`author_id`),
-  KEY `fk_comment_parent` (`parent_comment_id`)
+
+  -- 인덱스
+  KEY `ix_comment_post_created` (`post_id`, `created_at`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `counselor_absence` (
-`counselor_id` bigint NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `created_by` bigint DEFAULT NULL,
-  `end_at` datetime(6) DEFAULT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
+  `counselor_id` bigint NOT NULL,
+
   `start_at` datetime(6) NOT NULL,
-  `updated_at` datetime(6) NOT NULL,
+  `end_at` datetime(6) DEFAULT NULL,
   `reason` varchar(200) NOT NULL,
+  `created_by` bigint DEFAULT NULL,
+
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
-  KEY `idx_absence_counselor_range` (`counselor_id`,`start_at`,`end_at`),
+
+  KEY `idx_absence_counselor_range` (`counselor_id`, `start_at`, `end_at`),
+
+  KEY `fk_absence_counselor` (`counselor_id`),
   KEY `fk_absence_created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `counselor_profile` (
-`is_active` bit(1) NOT NULL,
-  `max_concurrent_chats` int NOT NULL,
   `counselor_id` bigint NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `updated_at` datetime(6) NOT NULL,
+  `max_concurrent_chats` int NOT NULL DEFAULT 3,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`counselor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -274,14 +320,10 @@ CREATE TABLE `course_sections` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `courses` (
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `id` bigint NOT NULL AUTO_INCREMENT,
   `price` bigint NOT NULL,
-  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
   `user_id` bigint NOT NULL,
   `course_name` varchar(100) NOT NULL,
-  `language_code` varchar(3) NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'PENDING',
   PRIMARY KEY (`id`),
   KEY `fk_course_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -330,7 +372,7 @@ CREATE TABLE `financial_ledger` (
   `ad_campaign_id` bigint DEFAULT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
   `settlement_id` bigint DEFAULT NULL,
-  `transaction_date` datetime(6) DEFAULT NULL,
+  `transaction_date` datetime(6) DEFAULT CURRENT_TIMESTAMP,
   `transaction_type` varchar(10) NOT NULL,
   `note` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -403,6 +445,7 @@ CREATE TABLE `mentoring_post_tags` (
   PRIMARY KEY (`post_id`,`tag_id`),
 
   KEY `idx_mentoring_post_tags_tag_post` (`tag_id`,`post_id`)
+  KEY `ix_mpt_tag` (`tag_id`,`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -475,43 +518,53 @@ CREATE TABLE `policy` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `post` (
-`answer_count` int NOT NULL,
-  `comment_count` int NOT NULL,
-  `like_count` int NOT NULL,
-  `view_count` int NOT NULL,
-  `accepted_comment_id` bigint DEFAULT NULL,
-  `author_id` bigint NOT NULL,
-  `board_id` bigint NOT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `deleted_at` datetime(6) DEFAULT NULL,
   `post_id` bigint NOT NULL AUTO_INCREMENT,
-  `updated_at` datetime(6) DEFAULT NULL,
+  `board_id` bigint NOT NULL,
   `status_code` varchar(30) NOT NULL,
+  `author_id` bigint NOT NULL,
   `title` varchar(200) NOT NULL,
   `content` mediumtext NOT NULL,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime(6) DEFAULT NULL,
+  `deleted_at` datetime(6) DEFAULT NULL,
+
+  `view_count` int NOT NULL DEFAULT 0,
+  `like_count` int NOT NULL DEFAULT 0,
+  `comment_count` int NOT NULL DEFAULT 0,
+  `answer_count` int NOT NULL DEFAULT 0,
+  `accepted_comment_id` bigint DEFAULT NULL,
+
   PRIMARY KEY (`post_id`),
-  KEY `ix_post_board_created` (`board_id`,`created_at`),
-  KEY `ix_post_board_status_created` (`board_id`,`status_code`,`created_at`),
+
+  -- 인덱스
+  KEY `ix_post_board_created` (`board_id`, `created_at`),
+  KEY `ix_post_board_status_created` (`board_id`, `status_code`, `created_at`),
   KEY `fk_post_author` (`author_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `post_attachment` (
-`is_image` bit(1) NOT NULL,
-  `is_temp` bit(1) NOT NULL,
-  `sort_order` int NOT NULL,
   `attachment_id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) NOT NULL,
-  `file_size` bigint NOT NULL,
-  `post_id` bigint DEFAULT NULL,
-  `checksum` varchar(64) NOT NULL,
-  `file_url` varchar(500) NOT NULL,
-  `s3_key` varchar(1024) NOT NULL,
-  `content_type` varchar(255) NOT NULL,
-  `original_file_name` varchar(255) NOT NULL,
+
+  -- [BaseAttEntity 매핑]
+  `original_name` varchar(255) NOT NULL,
   `storage_provider` varchar(20) NOT NULL,
+  `s3_key` varchar(255) NOT NULL,
+  `content_type` varchar(100) NOT NULL,
+  `file_size` bigint NOT NULL,
+  `checksum` varchar(64) NOT NULL,
+  `created_at` datetime(6) NOT NULL, -- BaseEntity의 설정에 따라 다름
+
+  -- [PostAtt 필드]
+  `post_id` bigint DEFAULT NULL,
+  `file_url` varchar(500) NOT NULL,
+  `is_image` tinyint(1) NOT NULL DEFAULT 0,
+  `sort_order` int NOT NULL DEFAULT 0,
+  `is_temp` tinyint(1) NOT NULL DEFAULT 1,
+
   PRIMARY KEY (`attachment_id`),
-  KEY `ix_attachment_temp` (`is_temp`,`created_at`),
-  KEY `fk_attachment_post` (`post_id`)
+  KEY `ix_attachment_temp` (`is_temp`, `created_at`),
+  KEY `fk_attachment_post` (`post_id`) -- FK 인덱스 (MySQL 자동생성)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `post_tag` (
@@ -569,32 +622,35 @@ CREATE TABLE `settlements` (
   `platform_fee_rate` decimal(5,2) NOT NULL,
   `tax_amount` decimal(15,2) NOT NULL,
   `total_sales_amount` decimal(15,2) NOT NULL,
-  `created_at` datetime(6) DEFAULT NULL,
+  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
   `id` bigint NOT NULL AUTO_INCREMENT,
   `instructor_id` bigint NOT NULL,
   `paid_at` datetime(6) DEFAULT NULL,
-  `status` varchar(20) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'PENDING',
   PRIMARY KEY (`id`),
   KEY `idx_instructor_period` (`instructor_id`,`period_start`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `support_closure` (
-`admin_id` bigint DEFAULT NULL,
-  `created_at` datetime(6) NOT NULL,
-  `end_at` datetime(6) NOT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
   `start_at` datetime(6) NOT NULL,
+  `end_at` datetime(6) NOT NULL,
   `reason` varchar(100) NOT NULL,
+  `admin_id` bigint DEFAULT NULL,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
-  KEY `idx_closure_range` (`start_at`,`end_at`),
-  KEY `fk_closure_admin` (`admin_id`)
+
+  KEY `idx_closure_range` (`start_at`, `end_at`),
+  KEY `fk_closure_created_by` (`admin_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `tag` (
-`created_at` datetime(6) NOT NULL,
-  `tag_id` bigint NOT NULL AUTO_INCREMENT,
+`tag_id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `tag_key` varchar(60) NOT NULL,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `uk_tag_tag_key` (`tag_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -685,18 +741,28 @@ CREATE TABLE `user_oauth_accounts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `user_reports` (
-`created_at` datetime(6) NOT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `post_id` bigint DEFAULT NULL,
   `reporter_id` bigint NOT NULL,
+  `post_id` bigint DEFAULT NULL,
   `target_id` bigint DEFAULT NULL,
   `reason` varchar(20) NOT NULL,
   `description` varchar(500) NOT NULL,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
   PRIMARY KEY (`id`),
+
   KEY `idx_user_reports_reporter_id` (`reporter_id`),
   KEY `idx_user_reports_target_id` (`target_id`),
   KEY `idx_user_reports_post_id` (`post_id`),
-  KEY `idx_user_reports_created_at` (`created_at`)
+  KEY `idx_user_reports_created_at` (`created_at`),
+
+  KEY `fk_user_reports_reporter` (`reporter_id`),
+  KEY `fk_user_reports_post` (`post_id`),
+  KEY `fk_user_reports_target` (`target_id`),
+
+  CONSTRAINT `ck_user_reports_target_at_least_one` CHECK (post_id IS NOT NULL OR target_id IS NOT NULL)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `user_roles` (
@@ -756,137 +822,3 @@ CREATE TABLE `users` (
   UNIQUE KEY `uk_users_nickname` (`nickname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ======================
--- Foreign keys
--- ======================
-
-ALTER TABLE `board_status` ADD CONSTRAINT `fk_board_status_board` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`);
-ALTER TABLE `chat_flows` ADD CONSTRAINT `fk_chat_flows_parent` FOREIGN KEY (`parent_id`) REFERENCES `chat_flows` (`id`);
-ALTER TABLE `chat_message` ADD CONSTRAINT `fk_msg_sender_user` FOREIGN KEY (`sender_user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `chat_message` ADD CONSTRAINT `fk_msg_session` FOREIGN KEY (`session_id`) REFERENCES `chat_session` (`id`);
-ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_last_message` FOREIGN KEY (`last_read_message_id`) REFERENCES `chat_message` (`id`);
-ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_reader` FOREIGN KEY (`reader_user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_session` FOREIGN KEY (`session_id`) REFERENCES `chat_session` (`id`);
-ALTER TABLE `chat_session` ADD CONSTRAINT `fk_session_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `counselor_profile` (`counselor_id`);
-ALTER TABLE `chat_session` ADD CONSTRAINT `fk_session_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
-ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parent_comment_id`) REFERENCES `comment` (`comment_id`);
-ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
-ALTER TABLE `counselor_absence` ADD CONSTRAINT `fk_absence_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `counselor_profile` (`counselor_id`);
-ALTER TABLE `counselor_absence` ADD CONSTRAINT `fk_absence_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
-ALTER TABLE `counselor_profile` ADD CONSTRAINT `fk_counselor_profile_user` FOREIGN KEY (`counselor_id`) REFERENCES `users` (`id`);
-ALTER TABLE `coupon_cart` ADD CONSTRAINT `fk_coupon_cart_coupon` FOREIGN KEY (`coupon_id`) REFERENCES `coupon` (`id`);
-ALTER TABLE `coupon_cart` ADD CONSTRAINT `fk_coupon_cart_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `course_att` ADD CONSTRAINT `fk_course_att_courses_curriculum` FOREIGN KEY (`courses_curriculum_id`) REFERENCES `courses_curriculum` (`id`);
-ALTER TABLE `course_history` ADD CONSTRAINT `fk_course_history_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `course_history` ADD CONSTRAINT `fk_course_history_user` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`);
-ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_orders_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `orders`
-  ADD CONSTRAINT `fk_orders_coupon`
-  FOREIGN KEY (`coupon_id`) REFERENCES `coupon` (`id`)
-  ON DELETE SET NULL;
-ALTER TABLE `course_order_items`
-  ADD CONSTRAINT `fk_order_item_course`
-  FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `course_order_items`
-  ADD CONSTRAINT `fk_order_item_course_order`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
-ALTER TABLE `course_requests` ADD CONSTRAINT `fk_course_request_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `course_reviews` ADD CONSTRAINT `fk_course_reviews_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `course_reviews` ADD CONSTRAINT `fk_course_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `course_sections` ADD CONSTRAINT `fk_course_section_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `courses` ADD CONSTRAINT `fk_course_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `courses_curriculum` ADD CONSTRAINT `fk_curriculum_course_section` FOREIGN KEY (`course_section_id`) REFERENCES `course_sections` (`id`);
-ALTER TABLE `expert_applications` ADD CONSTRAINT `fk_expert_applications_reviewer_admin` FOREIGN KEY (`reviewer_admin_id`) REFERENCES `users` (`id`);
-ALTER TABLE `expert_applications` ADD CONSTRAINT `fk_expert_applications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `expert_applications_att` ADD CONSTRAINT `fk_expert_app_att_application` FOREIGN KEY (`expert_application_id`) REFERENCES `expert_applications` (`id`);
-ALTER TABLE `financial_ledger` ADD CONSTRAINT `fk_financial_ledger_ad_campaign` FOREIGN KEY (`ad_campaign_id`) REFERENCES `ad_campaigns` (`id`);
-ALTER TABLE `financial_ledger` ADD CONSTRAINT `fk_financial_ledger_settlement` FOREIGN KEY (`settlement_id`) REFERENCES `settlements` (`id`);
-ALTER TABLE `mentee_list` ADD CONSTRAINT `fk_mentee_list_mentee` FOREIGN KEY (`mentee_id`) REFERENCES `users` (`id`);
-ALTER TABLE `mentee_list` ADD CONSTRAINT `fk_mentee_list_mentoring_post` FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`);
-ALTER TABLE `mentor_applications` ADD CONSTRAINT `fk_mentor_application_processed_by` FOREIGN KEY (`processed_by`) REFERENCES `users` (`id`);
-ALTER TABLE `mentor_applications` ADD CONSTRAINT `fk_mentor_application_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `mentoring_order_items`
-  ADD CONSTRAINT `fk_mentoring_order_items_mentoring_post`
-  FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`);
-ALTER TABLE `mentoring_order_items`
-  ADD CONSTRAINT `fk_mentoring_order_items_order`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
-ALTER TABLE `mentoring_post_tags` ADD CONSTRAINT `fk_mpt_post` FOREIGN KEY (`post_id`) REFERENCES `mentoring_posts` (`id`);
-ALTER TABLE `mentoring_post_tags` ADD CONSTRAINT `fk_mpt_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
-ALTER TABLE `mentoring_posts` ADD CONSTRAINT `fk_mentoring_post_user` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`);
-ALTER TABLE `mentors` ADD CONSTRAINT `fk_mentors_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `payment`
-  ADD CONSTRAINT `fk_payment_order`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
-ALTER TABLE `post` ADD CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
-ALTER TABLE `post` ADD CONSTRAINT `fk_post_board` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`);
-ALTER TABLE `post` ADD CONSTRAINT `fk_post_board_status` FOREIGN KEY (`board_id`, `status_code`) REFERENCES `board_status` (`board_id`, `status_code`);
-ALTER TABLE `post_attachment` ADD CONSTRAINT `fk_attachment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
-ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
-ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
-ALTER TABLE `refund`
-  ADD CONSTRAINT `fk_refund_order`
-  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
-ALTER TABLE `refund` ADD CONSTRAINT `fk_refund_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`id`);
-ALTER TABLE `settlement_items` ADD CONSTRAINT `fk_settlement_item_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`id`);
-ALTER TABLE `settlement_items` ADD CONSTRAINT `fk_settlement_item_settlement` FOREIGN KEY (`settlement_id`) REFERENCES `settlements` (`id`);
-ALTER TABLE `settlements` ADD CONSTRAINT `fk_settlement_instructor` FOREIGN KEY (`instructor_id`) REFERENCES `users` (`id`);
-ALTER TABLE `support_closure` ADD CONSTRAINT `fk_closure_admin` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`);
-ALTER TABLE `user_consent` ADD CONSTRAINT `fk_user_consent_policy` FOREIGN KEY (`policy_id`) REFERENCES `policy` (`id`);
-ALTER TABLE `user_consent` ADD CONSTRAINT `fk_user_consent_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `user_entitlement_access`
-  ADD CONSTRAINT `fk_user_entitlement_access_course`
-  FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`)
-  ON DELETE CASCADE;
-ALTER TABLE `user_entitlement_access`
-  ADD CONSTRAINT `fk_user_entitlement_access_course_order_item`
-  FOREIGN KEY (`course_order_item_id`) REFERENCES `course_order_items` (`id`)
-  ON DELETE CASCADE;
-ALTER TABLE `user_entitlement_access`
-  ADD CONSTRAINT `fk_user_entitlement_access_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-  ON DELETE CASCADE;
-ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
-ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_course_order_item` FOREIGN KEY (`course_order_item_id`) REFERENCES `course_order_items` (`id`);
-ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
-ALTER TABLE `user_oauth_accounts`
-  ADD CONSTRAINT `fk_oauth_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
-ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_reporter` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`);
-ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_target` FOREIGN KEY (`target_id`) REFERENCES `users` (`id`);
-ALTER TABLE `user_roles`
-  ADD CONSTRAINT `fk_mapping_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-ALTER TABLE `user_roles`
-  ADD CONSTRAINT `fk_mapping_role`
-  FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
-ALTER TABLE `user_sanctions`
-  DROP FOREIGN KEY `fk_sanctions_user`;
-ALTER TABLE `user_sanctions`
-  ADD CONSTRAINT `fk_sanctions_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-  ON DELETE CASCADE;
-ALTER TABLE `user_status_history`
-  ADD CONSTRAINT `fk_status_history_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-ALTER TABLE `user_status_history`
-  ADD CONSTRAINT `fk_status_history_admin`
-  FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
-ALTER TABLE `user_local_credentials`
-  ADD CONSTRAINT `fk_user_local_credentials_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-ALTER TABLE `mentee_applications`
-  ADD CONSTRAINT `fk_mentee_applications_mentoring_posts`
-  FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`)
-  ON DELETE SET NULL;
-ALTER TABLE `mentee_applications`
-  ADD CONSTRAINT `fk_mentee_applications_user`
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-  ON DELETE SET NULL;
-
-
-SET FOREIGN_KEY_CHECKS = 1;

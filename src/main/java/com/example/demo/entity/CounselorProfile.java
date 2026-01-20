@@ -2,8 +2,11 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -13,69 +16,51 @@ import java.time.LocalDateTime;
 @ToString(exclude = {"counselor"})
 @Entity
 @Table(name = "counselor_profile")
-/*  */
 public class CounselorProfile {
-    //    변수명	                내용	                                규격	            제약조건
-//    counselor_id	        user.id	                                BIGINT	        PK, FK
-//    max_concurrent_cahts	상담사가 받을 수 있는 채팅 세션의 최대 갯수	INT	NOT         NULL DEFAULT 3
-//    is_active	            1 = 근무중 / 0 = 부재, 퇴사, 휴직 등의 상태	TINYINT	        NOT NULL DEFAULT 1
-//    created_at	        해당 행이 생성된 시각	                    DATETIME	    NOT NULL DEFAULT CURRENT_TIMESTAMP
-//    updated_at	        해당 행이 수정된 시각	                    DATETIME	    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
-
-/*  [comments]
-1. HR이 “부재”로 상태를 변경할 때 기간과 사유를 저장해야 함.
-2. is_active가 0이면 배정 제외.
-3. 현재 일자가 counselor_absence.start_at ~ end_at 사이에 포함되면 배정 제외.
-4. 위의 2개의 조건에 해당되지 않을 경우 “근무”
-5. 존재하는 상담사만큼 행도 1:1로 생성(예: 상담사가 7명일 경우 7행)
-*/
-
-/*  [DDL]
-CREATE TABLE counselor_profile (
-	counselor_id BIGINT PRIMARY KEY,      -- [users.id](http://users.id/) (상담사 1명당 1행)
-	max_concurrent_chats INT NOT NULL DEFAULT 3,
-	is_active TINYINT(1) NOT NULL DEFAULT 1,  -- 장기/무기한 제외(퇴사/휴직/권한회수 등)
-	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-		CONSTRAINT fk_counselor_profile_user
-        FOREIGN KEY (counselor_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-*/
-
+    // [1] PK 설정: BasePkEntity 상속 금지 (Auto Increment 아님)
+    // users 테이블의 id와 1:1로 매핑되므로 직접 값을 입력하거나 @MapsId 전략을 사용해야 함
     @Id
-    @Column(name = "counselor_id", nullable = false)
-    private Long counselor_id;
+    @Column(name = "counselor_id")
+    private Long counselorId;
 
+    // [2] Default 3 설정
     @Column(name = "max_concurrent_chats", nullable = false)
-    private Integer max_concurrent_chats;
+    @ColumnDefault("3")
+    private Integer maxConcurrentChats = 3;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean is_active;
+    // [3] TINYINT(1) + Default 1 설정
+    @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1)")
+    @ColumnDefault("1")
+    private Boolean isActive = true;
 
+    // [4] created_at (BaseTimeEntity 대신 직접 정의하여 DDL 일치시킴)
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime created_at;
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 
+    // [5] updated_at (ON UPDATE 구문은 표준 JPA로 생성이 어려워 columnDefinition 사용)
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updated_at;
+    @Column(
+            name = "updated_at",
+            nullable = false,
+            columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    )
+    private LocalDateTime updatedAt;
 
+    // [6] 연관관계 매핑 (1:1)
+    // 식별 관계이므로 MapsId를 쓰거나, PK에 값을 직접 넣어야 함.
+    // 여기서는 PK 컬럼(counselorId)이 위에 있으므로 읽기 전용으로 매핑.
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "counselor_id",
-            nullable = false,
-            insertable = false,
+            insertable = false, // PK인 counselorId가 값을 관리
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_counselor_profile_user")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE) // DDL에 ON DELETE CASCADE 반영을 위한 힌트
     private User counselor;
 
-    @PrePersist
-    void prePersist() {
-        if (max_concurrent_chats == null) max_concurrent_chats = 3;
-        if (is_active == null) is_active = Boolean.TRUE;
-    }
-
+    // @PrePersist 제거 (DB Default로 대체)
 }

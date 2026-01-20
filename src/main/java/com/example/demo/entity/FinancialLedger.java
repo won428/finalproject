@@ -60,11 +60,12 @@ public class FinancialLedger extends BasePkEntity {
     private BigDecimal amount;
 
     @CreationTimestamp
-    @Column(name = "transaction_date", updatable = false)
+    @Column(name = "transaction_date", updatable = false, nullable = false)
     private LocalDateTime transactionDate;
 
     @Column(name = "note", length = 500)
     private String note;
+
 
     /*  [DDL]
 CREATE TABLE financial_ledger (

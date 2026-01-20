@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.entity.base.BasePkEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -55,10 +56,11 @@ public class AdCampaigns extends BasePkEntity {
     private BigDecimal contractAmount;
 
     // PLANNED / ACTIVE / ENDED / CANCELED
-    @Column(name = "status", length = 20)
+    @Column(name = "status", length = 20, nullable = false)
+    @ColumnDefault("'ACTIVE'")
     private String status = "ACTIVE";
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 }

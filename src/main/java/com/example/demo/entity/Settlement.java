@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -78,14 +79,15 @@ public class Settlement extends BasePkEntity {
     @Column(name = "final_payout_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal finalPayoutAmount;
 
-    @Column(name = "status", length = 20)
+    @Column(name = "status", length = 20, nullable = false)
+    @ColumnDefault("'PENDING'")
     private String status = "PENDING";
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
     /*  [DDL]

@@ -3,13 +3,12 @@ package com.example.demo.entity;
 import com.example.demo.entity.base.BaseAttEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"post"})
+@ToString(exclude = {"post"}) // 연관관계 필드 제외
 @Entity
 @Table(
         name = "post_attachment",
@@ -18,35 +17,46 @@ import java.time.LocalDateTime;
         }
 )
 @AttributeOverrides({
-        // BasePkEntity.id -> attachment_id
+        // [1] PK 매핑
         @AttributeOverride(name = "id", column = @Column(name = "attachment_id")),
 
-        // BaseAttEntity.fileSizeBytes(file_size_bytes) -> file_size
-        @AttributeOverride(name = "fileSizeBytes", column = @Column(name = "file_size", nullable = false, updatable = false))
+        // [2] BaseAttEntity 필드 재정의 (이름, 길이, 속성 맞춤)
+        @AttributeOverride(name = "fileSizeBytes", column = @Column(name = "file_size", nullable = false)),
+
+        // originalFileName -> original_name으로 변경
+        @AttributeOverride(name = "originalFileName", column = @Column(name = "original_name", nullable = false)),
+
+        // s3Key 길이 255로 제한 (DDL 반영)
+        @AttributeOverride(name = "s3Key", column = @Column(name = "s3_key", length = 255, nullable = false)),
+
+        // contentType 길이 100으로 제한 (DDL 반영)
+        @AttributeOverride(name = "contentType", column = @Column(name = "content_type", length = 100, nullable = false))
 })
 public class PostAtt extends BaseAttEntity {
 
-    // post_id BIGINT NULL
+    // [3] post_id 컬럼 직접 매핑 (읽기 전용 아님, FK용 컬럼)
+    // 연관관계 필드와 동시에 쓸 때는 insertable/updatable 주의가 필요하나,
+    // 보통 FK ID만으로 저장하는 로직이 있다면 이쪽을 살리고 연관관계를 읽기 전용으로 둡니다.
     @Column(name = "post_id")
-    private Long post_id;
+    private Long postId;
 
-    // file_url VARCHAR(500) NOT NULL
     @Column(name = "file_url", nullable = false, length = 500)
-    private String file_url;
+    private String fileUrl;
 
-    // is_image TINYINT(1) NOT NULL DEFAULT 0
-    @Column(name = "is_image", nullable = false)
-    private Boolean is_image = Boolean.FALSE;
+    // [4] Boolean -> TINYINT(1) & Default 설정
+    @Column(name = "is_image", nullable = false, columnDefinition = "TINYINT(1)")
+    @ColumnDefault("0")
+    private Boolean isImage = false;
 
-    // sort_order INT NOT NULL DEFAULT 0
     @Column(name = "sort_order", nullable = false)
-    private Integer sort_order = 0;
+    @ColumnDefault("0")
+    private Integer sortOrder = 0;
 
-    // is_temp TINYINT(1) NOT NULL DEFAULT 1
-    @Column(name = "is_temp", nullable = false)
-    private Boolean is_temp = Boolean.TRUE;
+    @Column(name = "is_temp", nullable = false, columnDefinition = "TINYINT(1)")
+    @ColumnDefault("1")
+    private Boolean isTemp = true;
 
-    // 읽기 전용 연관관계 (post_id 컬럼로만 쓰기)
+    // [5] 연관관계 매핑 (FK 제약조건 이름 지정, 읽기/쓰기 분리 시 읽기 전용 설정)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "post_id",
@@ -56,13 +66,5 @@ public class PostAtt extends BaseAttEntity {
     )
     private Post post;
 
-    @PrePersist
-    void prePersist() {
-        // BaseAttEntity.createdAt은 @CreationTimestamp로 자동 세팅됨
-        if (is_image == null) is_image = Boolean.FALSE;
-        if (sort_order == null) sort_order = 0;
-        if (is_temp == null) is_temp = Boolean.TRUE;
-    }
-
-
+    // @PrePersist 제거 (초기화 및 @ColumnDefault로 대체)
 }

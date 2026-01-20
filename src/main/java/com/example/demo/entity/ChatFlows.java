@@ -1,91 +1,71 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.base.BasePkEntity;
+import com.example.demo.enums.NodeType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
-@ToString(exclude = "parent")
-@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "chat_flows",
         indexes = {
-                @Index(name = "idx_parent_id", columnList = "parent_id")
+                @Index(name = "idx_parent_order", columnList = "parent_id, display_order")
         }
 )
-/*  */
-public class ChatFlows extends BasePkEntity {
-//    변수명	                                내용	                                                     규격	        제약조건
-//    id		                                                                                    BIGINT	        PK, AUTO_INCREMENT
+public class ChatFlows {
 
-//    parent_id	                상위노드ID                                                            BIGINT	        NULL
-//                              (NULL이면 최상위 루트)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-//    node_type	                노드 타입
-//                              MENU: 하위 버튼이 더 존재함 (계속 선택).
-//                              LEAF (또는 ANSWER): 더 이상 하위 버튼이 없고, 답변만 보여주고 종료.
-//                              ACTION: 앱 내 특정 페이지로 이동하거나 API를 호출해야 하는 경우.	        VARCHAR(20)	    NOT NULL
-
-//    button_text	            사용자가 누를 버튼의 텍스트	                                            VARCHAR(100)	NOT NULL
-
-//    response_message	        버튼 클릭 시 봇이 출력할 멘트	                                        TEXT
-
-//    action_code	            버튼 클릭했을 때 앱이 수행할 동작 식별코드                                 VARCHAR(50)	    NULL
-//                              DEEP_LINK: 특정 URL로 이동
-//                              OPEN_MODAL: 팝업창 띄우기
-//                              등등
-
-//    display_order	            같은 노드의 버튼이 항상 같은 순서로 정렬되어 나오도록 생성한 정렬용 컬럼       INT	            DEFAULT 0
-//                              ex : 10,20,30
-
-//    is_active	                노출여부                                                             BOOLEAN	        DEFAULT TRUE
-//                              사용자가 사용하지 않는 버튼은 안보임 처리용
-
-
-/*  [comments]
-chat_flows 테이블 내에서 셀프 참조를 반복하는 재귀적 참조구조.
-트리 구조로 하위 노드를 타고 내려가며 테이블을 여러개로 나눌 필요 없이 한 테이블로 기능 구현이 가능함.
-
-
-셀프 참조(부모 포인터) 자체는 이미 구현됨
-
-**삭제 연쇄(CASCADE)**는 DDL/Flyway에서 적용해야 동일 동작
-
-필요하면 children 컬렉션을 추가하면 트리 탐색이 더 편해짐 (선택)
-*/
-
-
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(
-            name = "parent_id",
-            nullable = true,
-            foreignKey = @ForeignKey(name = "fk_chat_flows_parent")
-    )
+    // [1] 트리 구조 부모
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(name = "fk_chat_flows_parent"))
+    @OnDelete(action = OnDeleteAction.CASCADE) // DDL: ON DELETE CASCADE 반영
     private ChatFlows parent;
 
-    @Column(name = "node_type", nullable = false, length = 20)
-    private String nodeType;
+    // [2] 흐름 제어 (Next Node)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "next_node_id", foreignKey = @ForeignKey(name = "fk_chat_flows_next_node"))
+    @OnDelete(action = OnDeleteAction.SET_NULL) // DDL: ON DELETE SET NULL 반영
+    private ChatFlows nextNode;
 
-    @Column(name = "button_text", nullable = false, length = 100)
-    private String buttonText;
+    // [3] 노드 성격
+    @Enumerated(EnumType.STRING)
+    @Column(name = "node_type", length = 20, nullable = false)
+    private NodeType nodeType;
 
-    @Lob
-    @Column(name = "response_message")
+    // [4] 봇 발화 및 UI
+    @Column(name = "response_message", columnDefinition = "TEXT", nullable = false)
     private String responseMessage;
 
+    @Column(name = "button_text", length = 100)
+    private String buttonText;
+
+    // [5] 기능 연동
     @Column(name = "action_code", length = 50)
     private String actionCode;
 
+    // Default 설정 (Java 초기화 + DB DDL 반영)
     @Column(name = "display_order")
+    @ColumnDefault("0")
     private Integer displayOrder = 0;
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
+    @ColumnDefault("TRUE")
     private Boolean isActive = true;
 
+    // 편의상 생성자 (필요 시 추가)
+    public ChatFlows(NodeType nodeType, String responseMessage) {
+        this.nodeType = nodeType;
+        this.responseMessage = responseMessage;
+    }
+}
     /*  [DDL]
 CREATE TABLE chat_flows (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -101,4 +81,4 @@ CREATE TABLE chat_flows (
 	INDEX idx_parent_id (parent_id)        -- 조회 성능을 위한 필수 인덱스
 );
 */
-}
+

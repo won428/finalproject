@@ -2,25 +2,28 @@ package com.example.demo.entity;
 
 import com.example.demo.entity.base.BaseTagEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"mentoringPost", "tag"})
 @Entity
+@Table(
+        name = "mentoring_post_tags",
+        indexes = {
+                @Index(name = "ix_mpt_tag", columnList = "tag_id, post_id")
+        }
+)
 @IdClass(MentoringPostTag.MentoringPostTagId.class)
-@Table(name = "mentoring_post_tags")
 /* 멘토링 글 태그 */
 public class MentoringPostTag extends BaseTagEntity {
-//    변수명	    내용	        규격	    제약조건
-//    post_id	게시글 ID	BIGINT 	NOT NULL
-//    tag_id	태그 ID	    BIGINT	NOT NULL
+    //    변수명     내용         규격     제약조건
+    //    post_id   게시글 ID    BIGINT   NOT NULL
+    //    tag_id    태그 ID      BIGINT   NOT NULL
 
     // 읽기 전용 연관관계(컬럼 쓰기 주체는 BaseTagEntity의 postId/tagId)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
