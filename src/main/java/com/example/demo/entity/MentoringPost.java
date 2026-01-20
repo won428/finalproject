@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@ToString(exclude = {"tags", "user"})
+@ToString(exclude = {"user"})
 @Entity
 @Table(name = "mentoring_posts")
 /* 멘토링 글 목록 */
@@ -32,19 +32,6 @@ public class MentoringPost extends BasePostEntity {
 //    update_at                     수정 날짜         DATETIME
 //    language_code	                멘토링 언어	    ENUM	        NOT NULL
 
-    // FK 컬럼(쓰기용) - nullable
-    @Column(name = "tags")
-    private Long tagsId;
-
-    // 연관관계(읽기전용)
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(
-            name = "tags",
-            insertable = false,
-            updatable = false,
-            foreignKey = @ForeignKey(name = "fk_mentoring_post_tags")
-    )
-    private MentoringPostTag tags;
 
     // FK 컬럼(쓰기용)
     @Column(name = "mentor_id", nullable = false)
