@@ -36,12 +36,34 @@ public class CourseReview extends BaseTimeEntity {
 //    created_at  등록 날짜    DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    updated_at  수정 날짜    DATETIME
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_reviews_user"))
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_reviews_user")
+    )
     private User user;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_reviews_course"))
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_reviews_course")
+    )
     private Course course;
 
     @Column(name = "star", nullable = false)

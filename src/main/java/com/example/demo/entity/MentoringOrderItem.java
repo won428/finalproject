@@ -18,12 +18,34 @@ public class MentoringOrderItem extends BasePkEntity {
 //    mentoring_post_id 	멘토링 글 FK	        BIGINT	    FK
 //    order_price	결제 당시 금액	BIGINT	    NOT NULL
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_mentoring_order_items_order"))
+    @JoinColumn(
+            name = "order_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentoring_order_items_order")
+    )
     private Order order;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "mentoring_post_id", nullable = false)
+    private Long mentoringPostId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "mentoring_post_id", nullable = false, foreignKey = @ForeignKey(name = "fk_mentoring_order_items_mentoring_post"))
+    @JoinColumn(
+            name = "mentoring_post_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentoring_order_items_mentoring_post")
+    )
     private MentoringPost mentoringPost;
 
     @Column(name = "order_price", nullable = false)

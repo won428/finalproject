@@ -42,10 +42,17 @@ public class Settlement extends BasePkEntity {
 //    created_at	        행 생성일	        DATETIME	        DEFAULT CURRENT_TIMESTAMP
 
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "instructor_id", nullable = false)
+    private Long instructorId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "instructor_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_settlement_instructor")
     )
     private User instructor;

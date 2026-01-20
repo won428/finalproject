@@ -28,16 +28,49 @@ public class UserEntitlement extends BaseTimeEntity {
 //    revoked_at        회수 날짜        DATETIME
 //    revoke_reason     회수 이유        VARCHAR(200)
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_entitlements_course"))
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_user_entitlements_course")
+    )
     private Course course;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_order_item_id", nullable = false)
+    private Long courseOrderItemId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_order_item_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_entitlements_course_order_item"))
+    @JoinColumn(
+            name = "course_order_item_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_user_entitlements_course_order_item")
+    )
     private CourseOrderItem courseOrderItem;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_user_entitlements_user") )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_user_entitlements_user")
+    )
     private User user;
 
     @Column(name = "status", nullable = false)

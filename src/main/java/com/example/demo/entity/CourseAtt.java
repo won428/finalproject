@@ -23,7 +23,19 @@ public class CourseAtt extends BaseAttEntity {
 //    checksum	                        해쉬나 태그	            VARCHAR	    NOT NULL
 //    created_at	                    등록 날짜	            DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "courses_curriculum_id", nullable = false)
+    private Long coursesCurriculumId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "courses_curriculum_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_att_courses_curriculum"))
+    @JoinColumn(
+            name = "courses_curriculum_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_att_courses_curriculum")
+    )
     private CoursesCurriculum coursesCurriculum;
 }
+

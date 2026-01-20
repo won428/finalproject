@@ -24,8 +24,20 @@ public class ExpertApplicationsAtt extends BaseAttEntity {
 //    file_size_bytes	        파일 사이즈	            BIGINT  	NOT NULL
 //    checksum	                해쉬나 태그	            VARCHAR	    NOT NULL
 //    created_at	            등록 날짜	            DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
+//    original_name
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "expert_application_id", nullable = false)
+    private Long expertApplicationId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "expert_application_id", nullable = false, foreignKey = @ForeignKey(name = "fk_expert_app_att_application") )
+    @JoinColumn(
+            name = "expert_application_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_expert_app_att_application")
+    )
     private ExpertApplication expertApplication;
 }
