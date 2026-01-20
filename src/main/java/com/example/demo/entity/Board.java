@@ -1,7 +1,9 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.base.BasePkEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
@@ -11,36 +13,26 @@ import lombok.*;
 @Table(
         name = "board",
         uniqueConstraints = {
+                // [API 성능 최적화] board_code에 유니크 인덱스가 걸리므로
+                // /api/boards/{boardCode} 조회 시 매우 빠름 (Index Scan)
                 @UniqueConstraint(name = "uk_board_board_code", columnNames = {"board_code"})
         }
 )
-/*  */
-public class Board {
-//    변수명	                             내용	                                                                규격	                제약조건
+// [핵심] 부모의 "id" 컬럼 매핑을 "board_id"로 재정의
+@AttributeOverride(name = "id", column = @Column(name = "board_id"))
+public class Board extends BasePkEntity {
 
-//    board_id		         	                                                                                BIGINT             PK AUTO_INCREMENT
-
-//    board_code	        게시판 코드
-//                          STUDY, COUNSEL, RECRUIT, QNA	                                                    VARCHAR(30)	    NOT NULL UNIQUE
-
-//    board_name	        게시판 이름                                                                           VARCHAR(50)	    NOT NULL
-//                          스터디, 상담, 팀모집, 질문&답변
-//
-//    is_active	            상태가 1인 게시판만 목록에 노춞                                                          TINYINT	        NOT NULL DEFAULT 1
-//                          0이면 점검중이거나 폐쇄
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "board_id")
-    private Long board_id;
+    // [삭제됨] private Long board_id; -> BasePkEntity의 id 사용
 
     @Column(name = "board_code", nullable = false, length = 30)
-    private String board_code;
+    private String boardCode; // Java: CamelCase, DB: snake_case
 
     @Column(name = "board_name", nullable = false, length = 50)
-    private String board_name;
+    private String boardName;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean is_active = Boolean.TRUE;
+    // [수정] TINYINT(1) + Default 1
+    @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT(1)")
+    @ColumnDefault("1")
+    private Boolean isActive = true;
 
 }

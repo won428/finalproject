@@ -49,23 +49,11 @@ public class PostTag extends BaseTagEntity {
     @Getter
     @Setter
     @NoArgsConstructor
+    @AllArgsConstructor // 편리한 생성자 추가
+    @EqualsAndHashCode  // equals, hashCode 로직 자동 생성
     public static class PostTagId implements Serializable {
         private Long postId;
         private Long tagId;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PostTagId)) return false;
-            PostTagId that = (PostTagId) o;
-            return Objects.equals(postId, that.postId) &&
-                    Objects.equals(tagId, that.tagId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(postId, tagId);
-        }
     }
 
 /*  [DDL]

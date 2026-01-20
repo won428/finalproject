@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(exclude = {"counselor_profile", "created_by_user"})
+@ToString(exclude = {"counselorProfile", "createdByUser"})
 @Entity
 @Table(
         name = "counselor_absence",
@@ -17,65 +17,47 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_absence_counselor_range", columnList = "counselor_id, start_at, end_at")
         }
 )
-/*  */
+// [핵심] 상속받은 필드들의 컬럼 속성 재정의 (DDL 강제 맞춤)
+@AttributeOverrides({
+        // BasePkEntity의 id -> DDL과 일치 (변경 없음, 명시적 확인)
+        @AttributeOverride(name = "id", column = @Column(name = "id")),
+
+        // BaseTimeEntity의 createdAt -> DEFAULT CURRENT_TIMESTAMP 추가
+        @AttributeOverride(name = "createdAt", column = @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP")),
+
+        // BaseTimeEntity의 updatedAt -> ON UPDATE CURRENT_TIMESTAMP 추가
+        @AttributeOverride(name = "updatedAt", column = @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
+})
 public class CounselorAbsence extends BaseTimeEntity {
-//    변수명	            내용	                                    규격	                제약조건
-//    id		                                                BIGINT	            PK AUTO_INCREMENT
-//    counselor_id	    상태 변경된 상담사 ID(users.id)	        BIGINT	            FK, NOT NULL
-//    start_at	        부재 시작일	                            DATETIME	        NOT NULL
-//    end_at	        부재 종료일	                            DATETIME	        NULL
-//    reason	        사유(연차/ 병가 등)	                    VARCHAR(200)	    NOT NULL
-//    created_by	    상담사의 상태를 변경한 관리자 ID(users.id)	BIGINT	            FK, NULL
-//    created_at	    행이 생성된 날짜	                        DATETIME	        NOT NULL DEFAULT CURRENT_TIMESTAMP
-//    updated_at	    행이 수정된 날짜	                        DATETIME	        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
-
-/*  [DDL]
-CREATE TABLE counselor_absence (
-	id BIGINT AUTO_INCREMENT PRIMARY KEY,
-	counselor_id BIGINT NOT NULL,
-	start_at DATETIME NOT NULL,
-	end_at DATETIME NULL,           -- NULL이면 “해제할 때까지 무기한 부재”도 가능
-	reason VARCHAR(200) NOT NULL,   -- 사유(연차/교육/병가/기타)
-	created_by BIGINT NULL,         -- HR 담당자 [users.id](http://users.id/) (선택)
-
-	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-	KEY idx_absence_counselor_range (counselor_id, start_at, end_at),
-
-	CONSTRAINT fk_absence_counselor
-		FOREIGN KEY (counselor_id) REFERENCES users(id),
-	CONSTRAINT fk_absence_created_by
-		FOREIGN KEY (created_by) REFERENCES users(id)
-) ENGINE=InnoDB;
- */
-
+    // [1] FK용 컬럼 직접 매핑 (CamelCase 변수명)
     @Column(name = "counselor_id", nullable = false)
-    private Long counselor_id;
+    private Long counselorId;
 
     @Column(name = "start_at", nullable = false)
-    private LocalDateTime start_at;
+    private LocalDateTime startAt;
 
-    @Column(name = "end_at")
-    private LocalDateTime end_at;
+    @Column(name = "end_at", nullable = true) // NULL 가능 (무기한)
+    private LocalDateTime endAt;
 
     @Column(name = "reason", nullable = false, length = 200)
     private String reason;
 
-    @Column(name = "created_by")
-    private Long created_by;
+    @Column(name = "created_by", nullable = true) // NULL 가능 (ON DELETE SET NULL)
+    private Long createdBy;
 
+    // [2] 연관관계 매핑 (읽기 전용)
+    // 상담사 프로필 (삭제 시 Cascade)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "counselor_id",
-            nullable = false,
             insertable = false,
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_absence_counselor")
     )
-    private CounselorProfile counselor_profile;
+    private CounselorProfile counselorProfile;
 
+    // 생성자 (삭제 시 Set Null)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "created_by",
@@ -83,6 +65,6 @@ CREATE TABLE counselor_absence (
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_absence_created_by")
     )
-    private User created_by_user;
+    private User createdByUser;
 
 }

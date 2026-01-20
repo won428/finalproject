@@ -1,7 +1,10 @@
 package com.example.demo.entity;
 
+import com.example.demo.entity.base.BasePkEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +20,8 @@ import java.time.LocalDateTime;
         }
 )
 /* 게시글 태그 */
-public class Tag {
+@AttributeOverride(name = "id", column = @Column(name = "tag_id"))
+public class Tag extends BasePkEntity {
 //    변수명	        내용	                                 규격	            제약조건
 //    tag_id	    태그ID	                             BIGINT	            PK, AUTO_INCREMENT
 //    name	        사용자가 볼 태그명                      VARCHAR(50)	    NOT NULL
@@ -29,24 +33,22 @@ public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tag_id")
-    private Long tag_id;
+    private Long tagId;
 
     // name VARCHAR(50) NOT NULL
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
     // tag_key VARCHAR(60) NOT NULL UNIQUE
-    @Column(name = "tag_key", nullable = false, length = 60, unique = true)
-    private String tag_key;
+    // unique=true는 @Table의 uniqueConstraints로 대체되었으므로 여기선 생략 가능
+    @Column(name = "tag_key", nullable = false, length = 60)
+    private String tagKey;
 
     // created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    @CreationTimestamp // INSERT 시 Hibernate가 시간 자동 주입
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @PrePersist
-    void prePersist() {
-        if (created_at == null) created_at = LocalDateTime.now();
-    }
+    @ColumnDefault("CURRENT_TIMESTAMP") // DDL 생성 시 DEFAULT 문구 추가
+    private LocalDateTime createdAt;
 
 /*  [comments]
 post 테이블에 tag_id가 참조되어있지 않기 때문에 강제성 없음.
