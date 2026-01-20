@@ -27,10 +27,17 @@ public class Payment extends BasePkEntity {
 //    completed_at	        성공 시간	                    DATETIME
 //    failed_at	        실패 시간	                    DATETIME
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "order_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_payment_order")
     )
     private Order order;

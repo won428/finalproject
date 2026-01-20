@@ -29,12 +29,32 @@ public class CouponCart extends BasePkEntity {
 //                  사용(USED),
 //                  만료(EXPIRED))
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_coupon_cart_users"))
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "coupon_id", nullable = false)
+    private Long couponId;
+
+    // 연관관계(읽기전용)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_coupon_cart_users")
+    )
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", nullable = false, foreignKey = @ForeignKey(name = "fk_coupon_cart_coupon"))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "coupon_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_coupon_cart_coupon")
+    )
     private Coupon coupon;
 
     @CreationTimestamp

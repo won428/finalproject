@@ -28,8 +28,19 @@ public class CoursesCurriculum extends BasePkEntity {
 //    description	        차시 설명	VARCHAR	    NOT NULL
 //    sort_order	        차시 순서	INT	    NOT NULL
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_section_id", nullable = false)
+    private Long courseSectionId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_section_id", nullable = false, foreignKey = @ForeignKey(name = "fk_curriculum_course_section"))
+    @JoinColumn(
+            name = "course_section_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_curriculum_course_section")
+    )
     private CourseSections courseSection;
 
     @Column(name = "title", nullable = false, length = 200)

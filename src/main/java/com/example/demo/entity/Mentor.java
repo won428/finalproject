@@ -23,8 +23,20 @@ public class Mentor extends BasePkEntity {
 //    user_id	    사용자 ID	        BIGINT	    FK, NOT NULL
 //    verified_at	멘토 인증 완료 날짜	DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_mentors_user") )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            unique = true,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentors_user")
+    )
     private User user;
 
     @CreationTimestamp

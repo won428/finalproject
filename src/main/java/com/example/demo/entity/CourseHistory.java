@@ -42,9 +42,20 @@ public class CourseHistory extends BasePkEntity {
 //    price	            가격	                BIGINT	    NOT NULL
 //    course_name	    현재 버젼 강의명	            VARCHAR	    NOT NULL
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_history_course"))
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_history_course")
+    )
     private Course course;
+
 
     @Column(name = "revision_no", nullable = false)
     private Long revisionNo;
@@ -57,8 +68,18 @@ public class CourseHistory extends BasePkEntity {
     @Column(name = "changed_at", updatable = false, nullable = false) // 수정 시에는 건드리지 않음
     private LocalDateTime changedAt;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "changed_by", nullable = false)
+    private Long changedById;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "changed_by", nullable = false, foreignKey = @ForeignKey(name = "fk_course_history_user") )
+    @JoinColumn(
+            name = "changed_by",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_history_user")
+    )
     private User changedBy;
 
     @Column(name = "price", nullable = false)

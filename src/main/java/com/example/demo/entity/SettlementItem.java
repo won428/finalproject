@@ -22,18 +22,32 @@ public class SettlementItem extends BasePkEntity {
 //    course_amount	    해당 건 결제금액	        DECIMAL(15,2)	NOT NULL
 
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "settlement_id", nullable = false)
+    private Long settlementId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "settlement_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_settlement_item_settlement")
     )
     private Settlement settlement;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "payment_id", nullable = false)
+    private Long paymentId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "payment_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_settlement_item_payment")
     )
     private Payment payment;

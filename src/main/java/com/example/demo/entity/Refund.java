@@ -34,18 +34,32 @@ public class Refund extends BasePkEntity {
 //    fail_code	            실패 사유(간략히)	            ENUM
 //    fail_detail	        실패 사유(자세히)	            VARCHAR
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "order_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_refund_order")
     )
     private Order order;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "payment_id", nullable = false)
+    private Long paymentId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "payment_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_refund_payment")
     )
     private Payment payment;

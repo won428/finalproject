@@ -32,13 +32,35 @@ public class MentoringPost extends BasePostEntity {
 //    update_at                     수정 날짜         DATETIME
 //    language_code	                멘토링 언어	    ENUM	        NOT NULL
 
+    // FK 컬럼(쓰기용) - nullable
+    @Column(name = "tags")
+    private Long tagsId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "tags", nullable = true, foreignKey = @ForeignKey(name = "fk_mentoring_post_tags") )
+    @JoinColumn(
+            name = "tags",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentoring_post_tags")
+    )
     private MentoringPostTag tags;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "mentor_id", nullable = false)
+    private Long mentorId;
+
+    // 연관관계(읽기전용) - (필드명 user 그대로 유지)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "mentor_id", nullable = false, foreignKey = @ForeignKey(name = "fk_mentoring_post_user") )
+    @JoinColumn(
+            name = "mentor_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentoring_post_user")
+    )
     private User user;
+
 
     @Column(name = "program_start_date", nullable = false)
     private LocalDate programStartDate;

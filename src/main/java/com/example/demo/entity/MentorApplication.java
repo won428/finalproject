@@ -22,12 +22,33 @@ public class MentorApplication extends BaseRequestTimeEntity {
 //    processed_by	    처리자 ID	BIGINT	    FK
 //    reject_reason	    반려사유	    VARCHAR
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_mentor_application_user") )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentor_application_user")
+    )
     private User user;
 
+    // FK 컬럼(쓰기용) - nullable
+    @Column(name = "processed_by")
+    private Long processedById;
+
+    // 연관관계(읽기전용) - nullable
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "processed_by", nullable = true, foreignKey = @ForeignKey(name = "fk_mentor_application_processed_by") )
+    @JoinColumn(
+            name = "processed_by",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_mentor_application_processed_by")
+    )
     private User processedBy;
 
     @Column(name = "reject_reason", length = 500)

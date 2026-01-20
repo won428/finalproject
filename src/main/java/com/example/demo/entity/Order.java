@@ -35,9 +35,21 @@ public class Order extends BasePkEntity {
     @Column(name = "order_code", nullable = false, unique = true, length = 50)
     private String orderCode;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_order_user"))
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_order_user")
+    )
     private User user;
+
 
     @CreationTimestamp
     @Column(name = "ordered_at", updatable = false, nullable = false)
@@ -50,8 +62,18 @@ public class Order extends BasePkEntity {
     @Column(name = "total_amount", nullable = false)
     private Long totalAmount;
 
+    // FK 컬럼(쓰기용) - nullable
+    @Column(name = "coupon_id")
+    private Long couponId;
+
+    // 연관관계(읽기전용) - nullable
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", foreignKey = @ForeignKey(name = "fk_course_order_coupon"))
+    @JoinColumn(
+            name = "coupon_id",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_order_coupon")
+    )
     private Coupon coupon;
 
     @Column(name = "discount_percent")

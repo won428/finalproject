@@ -28,8 +28,19 @@ public class Course extends BaseTimeEntity {
     @Column(name = "course_name", nullable = false, length = 100)
     private String courseName;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_user") )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_user")
+    )
     private User user;
 
     @Enumerated(EnumType.STRING)

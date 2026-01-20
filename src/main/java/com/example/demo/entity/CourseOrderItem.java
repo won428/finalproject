@@ -18,12 +18,32 @@ public class CourseOrderItem extends BasePkEntity {
 //    course_id 	강의 FK	        BIGINT	    FK
 //    order_price	결제 당시 금액	BIGINT	    NOT NULL
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_course_order"))
-    private Order order;
+    // FK 컬럼(쓰기용)
+    @Column(name = "order_id", nullable = false)
+    private Long orderId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_order_item_course"))
+    @JoinColumn(
+            name = "order_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_order_item_course_order")
+    )
+    private Order order;
+
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_order_item_course")
+    )
     private Course course;
 
     @Column(name = "order_price", nullable = false)

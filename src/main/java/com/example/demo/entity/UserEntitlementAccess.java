@@ -36,26 +36,47 @@ public class UserEntitlementAccess extends BaseTimeEntity {
 //    created_at	            생성 날짜	            DATETIME	(BaseTimeEntity)
 //    updated_at               수정 날짜	            DATETIME	(BaseTimeEntity)
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "course_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_user_entitlement_access_course")
     )
     private Course course;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_order_item_id", nullable = false, unique = true)
+    private Long courseOrderItemId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "course_order_item_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_user_entitlement_access_course_order_item")
     )
     private CourseOrderItem courseOrderItem;
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "user_id",
             nullable = false,
+            insertable = false,
+            updatable = false,
             foreignKey = @ForeignKey(name = "fk_user_entitlement_access_user")
     )
     private User user;

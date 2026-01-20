@@ -22,12 +22,33 @@ public class ExpertApplication extends BaseRequestTimeEntity {
 //    reviewer_admin_id	처리자 ID	BIGINT	    FK NOT NULL
 //    reject_reason	    반려 사유	VARCHAR
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_expert_applications_user") )
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_expert_applications_user")
+    )
     private User user;
 
+    // FK 컬럼(쓰기용) - nullable
+    @Column(name = "reviewer_admin_id")
+    private Long reviewerAdminId;
+
+    // 연관관계(읽기전용) - nullable
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "reviewer_admin_id", nullable = true, foreignKey = @ForeignKey(name = "fk_expert_applications_reviewer_admin") )
+    @JoinColumn(
+            name = "reviewer_admin_id",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_expert_applications_reviewer_admin")
+    )
     private User reviewerAdmin;
 
     @Column(name="reject_reason", nullable = true, length = 200)

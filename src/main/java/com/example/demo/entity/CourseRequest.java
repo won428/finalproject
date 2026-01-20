@@ -23,9 +23,21 @@ public class CourseRequest extends BaseRequestTimeEntity {
 //    submitted_at	신청시간	    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    reviewed_at	처리시간	    DATETIME
 
+    // FK 컬럼(쓰기용)
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
+
+    // 연관관계(읽기전용)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_course_request_course"))
+    @JoinColumn(
+            name = "course_id",
+            nullable = false,
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(name = "fk_course_request_course")
+    )
     private Course course;
+
 
     @Column(name = "price", nullable = false)
     private Long price;
