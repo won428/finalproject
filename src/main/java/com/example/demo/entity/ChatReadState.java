@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.entity.base.BaseTimeEntity;
+import com.example.demo.entity.base.BaseTimeNoPkEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +29,7 @@ import java.time.LocalDateTime;
         // updated_at: ON UPDATE CURRENT_TIMESTAMP 명시
         @AttributeOverride(name = "updatedAt", column = @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 })
-public class ChatReadState extends BaseTimeEntity {
+public class ChatReadState extends BaseTimeNoPkEntity {
 
     // [1] 복합키 1: session_id -> sessionId
     @Id

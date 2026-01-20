@@ -14,7 +14,7 @@ CREATE TABLE `ad_campaigns` (
 `contract_amount` decimal(15,2) NOT NULL,
   `end_date` date NOT NULL,
   `start_date` date NOT NULL,
-  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  `created_at` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `id` bigint NOT NULL AUTO_INCREMENT,
   `status` varchar(20) DEFAULT 'ACTIVE',
   `type` varchar(20) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `board_status` (
 
 CREATE TABLE `chat_flows` (
 `display_order` int DEFAULT 0,
-  `is_active` bit(1) DEFAULT 1 NOT NULL,
+  `is_active` bit(1) NOT NULL DEFAULT b'1',
   `id` bigint NOT NULL AUTO_INCREMENT,
   `parent_id` bigint DEFAULT NULL,
   `next_node_id` bigint NULL,
@@ -77,15 +77,15 @@ CREATE TABLE `chat_message` (
 
   `message_type` varchar(20) NOT NULL DEFAULT 'TEXT',
   `content` TEXT NOT NULL,
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
   PRIMARY KEY (`id`),
 
   KEY `idx_msg_session_created` (`session_id`, `created_at`),
   KEY `idx_msg_session_id` (`session_id`, `id`),
 
-  KEY `fk_msg_session` (`session_id`),
-  KEY `fk_msg_sender_user` (`sender_user_id`)
+  KEY `idx_chat_message_session_id` (`session_id`),
+  KEY `idx_chat_message_sender_user_id` (`sender_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_read_state` (
@@ -102,9 +102,9 @@ CREATE TABLE `chat_read_state` (
   KEY `idx_read_state_last_msg` (`last_read_message_id`),
   KEY `idx_read_state_reader` (`reader_user_id`, `session_id`),
 
-  KEY `fk_read_state_session` (`session_id`),
-  KEY `fk_read_state_reader` (`reader_user_id`),
-  KEY `fk_read_state_last_message` (`last_read_message_id`)
+  KEY `idx_chat_read_state_session_id` (`session_id`),
+  KEY `idx_chat_read_state_reader_user_id` (`reader_user_id`),
+  KEY `idx_chat_read_state_last_read_message_id` (`last_read_message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `chat_session` (
@@ -117,14 +117,14 @@ CREATE TABLE `chat_session` (
   `close_reason` varchar(50) DEFAULT NULL,
   `ended_by` varchar(20) DEFAULT NULL,
 
-  `queued_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `queued_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
   `assigned_at` datetime(6) DEFAULT NULL,
   `started_at` datetime(6) DEFAULT NULL,
   `ended_at` datetime(6) DEFAULT NULL,
 
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 
   PRIMARY KEY (`id`),
 
@@ -136,8 +136,8 @@ CREATE TABLE `chat_session` (
   KEY `idx_session_status_queued` (`status`, `queued_at`),
   KEY `idx_session_counselor_status` (`counselor_id`, `status`, `created_at`),
 
-  KEY `fk_session_user` (`user_id`),
-  KEY `fk_session_counselor` (`counselor_id`)
+  KEY `idx_chat_session_user_id` (`user_id`),
+  KEY `idx_chat_session_counselor_id` (`counselor_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `comment` (
@@ -150,14 +150,14 @@ CREATE TABLE `comment` (
 
   `is_answer` tinyint NOT NULL DEFAULT 0,
 
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
   `deleted_at` datetime(6) DEFAULT NULL,
 
   PRIMARY KEY (`comment_id`),
 
   -- 인덱스
-  KEY `ix_comment_post_created` (`post_id`, `created_at`)
+  KEY `idx_comment_post_created` (`post_id`, `created_at`)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -177,8 +177,8 @@ CREATE TABLE `counselor_absence` (
 
   KEY `idx_absence_counselor_range` (`counselor_id`, `start_at`, `end_at`),
 
-  KEY `fk_absence_counselor` (`counselor_id`),
-  KEY `fk_absence_created_by` (`created_by`)
+  KEY `idx_counselor_absence_counselor_id` (`counselor_id`),
+  KEY `idx_counselor_absence_created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `counselor_profile` (
@@ -186,7 +186,7 @@ CREATE TABLE `counselor_profile` (
   `max_concurrent_chats` int NOT NULL DEFAULT 3,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
 
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   PRIMARY KEY (`counselor_id`)
@@ -213,8 +213,8 @@ CREATE TABLE `coupon_cart` (
   `status` varchar(20) NOT NULL DEFAULT 'UNUSED',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_coupon_cart_user_coupon` (`user_id`,`coupon_id`),
-  KEY `fk_coupon_cart_coupon` (`coupon_id`),
-  KEY `fk_coupon_cart_users` (`user_id`)
+  KEY `idx_coupon_cart_coupon_id` (`coupon_id`),
+  KEY `idx_coupon_cart_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -277,8 +277,8 @@ CREATE TABLE `course_order_items` (
   `order_id` bigint NOT NULL,
   `order_price` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_order_item_course` (`course_id`),
-  KEY `fk_order_item_course_order` (`order_id`)
+  KEY `idx_course_order_items_course_id` (`course_id`),
+  KEY `idx_course_order_items_order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `course_requests` (
@@ -304,8 +304,8 @@ CREATE TABLE `course_reviews` (
   `content` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_course_reviews_user_course` (`user_id`,`course_id`),
-  KEY `ix_course_reviews_course` (`course_id`),
-  KEY `ix_course_reviews_user` (`user_id`),
+  KEY `idx_course_reviews_course` (`course_id`),
+  KEY `idx_course_reviews_user` (`user_id`),
   CONSTRAINT `course_reviews_chk_1` CHECK (((`star` <= 5) and (`star` >= 1)))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -321,11 +321,20 @@ CREATE TABLE `course_sections` (
 
 CREATE TABLE `courses` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `price` bigint NOT NULL,
-  `user_id` bigint NOT NULL,
+
   `course_name` varchar(100) NOT NULL,
+  `user_id` bigint NOT NULL,
+
+  `status` varchar(20) NOT NULL DEFAULT 'PENDING',
+  `price` bigint NOT NULL,
+  `language_code` varchar(3) NOT NULL,
+
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `updated_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+
   PRIMARY KEY (`id`),
-  KEY `fk_course_user` (`user_id`)
+
+  KEY `idx_courses_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `courses_curriculum` (
@@ -347,8 +356,8 @@ CREATE TABLE `expert_applications` (
   `reject_reason` varchar(200) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'PENDING',
   PRIMARY KEY (`id`),
-  KEY `fk_expert_applications_reviewer_admin` (`reviewer_admin_id`),
-  KEY `fk_expert_applications_user` (`user_id`)
+  KEY `idx_expert_applications_reviewer_admin_id` (`reviewer_admin_id`),
+  KEY `idx_expert_applications_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -363,7 +372,7 @@ CREATE TABLE `expert_applications_att` (
   `original_file_name` varchar(255) NOT NULL,
   `storage_provider` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_expert_app_att_application` (`expert_application_id`)
+  KEY `idx_expert_applications_att_expert_application_id` (`expert_application_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -372,12 +381,12 @@ CREATE TABLE `financial_ledger` (
   `ad_campaign_id` bigint DEFAULT NULL,
   `id` bigint NOT NULL AUTO_INCREMENT,
   `settlement_id` bigint DEFAULT NULL,
-  `transaction_date` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  `transaction_date` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
   `transaction_type` varchar(10) NOT NULL,
   `note` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_financial_ledger_ad_campaign` (`ad_campaign_id`),
-  KEY `fk_financial_ledger_settlement` (`settlement_id`)
+  KEY `idx_financial_ledger_ad_campaign_id` (`ad_campaign_id`),
+  KEY `idx_financial_ledger_settlement_id` (`settlement_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `mentee_list` (
@@ -387,8 +396,8 @@ CREATE TABLE `mentee_list` (
   `mentee_id` bigint NOT NULL,
   `mentoring_post_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_mentee_list_mentee` (`mentee_id`),
-  KEY `fk_mentee_list_mentoring_post` (`mentoring_post_id`)
+  KEY `idx_mentee_list_mentee_id` (`mentee_id`),
+  KEY `idx_mentee_list_mentoring_post_id` (`mentoring_post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `mentee_applications` (
@@ -410,8 +419,8 @@ CREATE TABLE `mentee_applications` (
 
   UNIQUE KEY `uk_mentee_applications_mentoring_posts_user` (`mentoring_post_id`, `user_id`),
 
-  KEY `idx_mentee_applications_mentoring_posts` (`mentoring_post_id`),
-  KEY `idx_mentee_applications_user` (`user_id`)
+  KEY `idx_mentee_applications_mentoring_post_id` (`mentoring_post_id`),
+  KEY `idx_mentee_applications_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -424,8 +433,8 @@ CREATE TABLE `mentor_applications` (
   `reject_reason` varchar(500) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'PENDING',
   PRIMARY KEY (`id`),
-  KEY `fk_mentor_application_processed_by` (`processed_by`),
-  KEY `fk_mentor_application_user` (`user_id`)
+  KEY `idx_mentor_applications_processed_by` (`processed_by`),
+  KEY `idx_mentor_applications_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -435,17 +444,15 @@ CREATE TABLE `mentoring_order_items` (
   `order_id` bigint NOT NULL,
   `order_price` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_mentoring_order_items_mentoring_post` (`mentoring_post_id`),
-  KEY `fk_mentoring_order_items_order` (`order_id`)
+  KEY `idx_mentoring_order_items_mentoring_post_id` (`mentoring_post_id`),
+  KEY `idx_mentoring_order_items_order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `mentoring_post_tags` (
   `post_id` bigint NOT NULL,
   `tag_id` bigint NOT NULL,
   PRIMARY KEY (`post_id`,`tag_id`),
-
   KEY `idx_mentoring_post_tags_tag_post` (`tag_id`,`post_id`)
-  KEY `ix_mpt_tag` (`tag_id`,`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -497,7 +504,7 @@ CREATE TABLE `payment` (
 
   UNIQUE KEY `uk_payment_provider_payment_id` (`provider_payment_id`),
 
-  KEY `fk_payment_order` (`order_id`)
+  KEY `idx_payment_order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -525,7 +532,7 @@ CREATE TABLE `post` (
   `title` varchar(200) NOT NULL,
   `content` mediumtext NOT NULL,
 
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `updated_at` datetime(6) DEFAULT NULL,
   `deleted_at` datetime(6) DEFAULT NULL,
 
@@ -538,9 +545,9 @@ CREATE TABLE `post` (
   PRIMARY KEY (`post_id`),
 
   -- 인덱스
-  KEY `ix_post_board_created` (`board_id`, `created_at`),
-  KEY `ix_post_board_status_created` (`board_id`, `status_code`, `created_at`),
-  KEY `fk_post_author` (`author_id`)
+  KEY `idx_post_board_created` (`board_id`, `created_at`),
+  KEY `idx_post_board_status_created` (`board_id`, `status_code`, `created_at`),
+  KEY `idx_post_author_id` (`author_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `post_attachment` (
@@ -563,15 +570,15 @@ CREATE TABLE `post_attachment` (
   `is_temp` tinyint(1) NOT NULL DEFAULT 1,
 
   PRIMARY KEY (`attachment_id`),
-  KEY `ix_attachment_temp` (`is_temp`, `created_at`),
-  KEY `fk_attachment_post` (`post_id`) -- FK 인덱스 (MySQL 자동생성)
+  KEY `idx_attachment_temp` (`is_temp`, `created_at`),
+  KEY `idx_post_attachment_post_id` (`post_id`) -- FK 인덱스 (MySQL 자동생성)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `post_tag` (
 `post_id` bigint NOT NULL,
   `tag_id` bigint NOT NULL,
   PRIMARY KEY (`post_id`,`tag_id`),
-  KEY `ix_post_tag_tag` (`tag_id`,`post_id`)
+  KEY `idx_post_tag_tag` (`tag_id`,`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `refund` (
@@ -592,8 +599,8 @@ CREATE TABLE `refund` (
 
   UNIQUE KEY `uk_refund_provider_refund_id` (`provider_refund_id`),
 
-  KEY `fk_refund_order` (`order_id`),
-  KEY `fk_refund_payment` (`payment_id`)
+  KEY `idx_refund_order_id` (`order_id`),
+  KEY `idx_refund_payment_id` (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `roles` (
@@ -601,7 +608,7 @@ CREATE TABLE `roles` (
   `code` varchar(50) NOT NULL,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_role_code` (`code`)
+  UNIQUE KEY `uk_role_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `settlement_items` (
@@ -610,8 +617,8 @@ CREATE TABLE `settlement_items` (
   `payment_id` bigint NOT NULL,
   `settlement_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_settlement_item_payment` (`payment_id`),
-  KEY `fk_settlement_item_settlement` (`settlement_id`)
+  KEY `idx_settlement_items_payment_id` (`payment_id`),
+  KEY `idx_settlement_items_settlement_id` (`settlement_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `settlements` (
@@ -622,7 +629,7 @@ CREATE TABLE `settlements` (
   `platform_fee_rate` decimal(5,2) NOT NULL,
   `tax_amount` decimal(15,2) NOT NULL,
   `total_sales_amount` decimal(15,2) NOT NULL,
-  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) DEFAULT CURRENT_TIMESTAMP(6),
   `id` bigint NOT NULL AUTO_INCREMENT,
   `instructor_id` bigint NOT NULL,
   `paid_at` datetime(6) DEFAULT NULL,
@@ -638,19 +645,19 @@ CREATE TABLE `support_closure` (
   `reason` varchar(100) NOT NULL,
   `admin_id` bigint DEFAULT NULL,
 
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
   PRIMARY KEY (`id`),
 
   KEY `idx_closure_range` (`start_at`, `end_at`),
-  KEY `fk_closure_created_by` (`admin_id`)
+  KEY `idx_support_closure_admin_id` (`admin_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `tag` (
 `tag_id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `tag_key` varchar(60) NOT NULL,
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   PRIMARY KEY (`tag_id`),
   UNIQUE KEY `uk_tag_tag_key` (`tag_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -669,8 +676,8 @@ CREATE TABLE `user_consent` (
 
   UNIQUE KEY `uk_user_policy_history` (`user_id`,`policy_id`),
 
-  KEY `fk_user_consent_user` (`user_id`),
-  KEY `fk_user_consent_policy` (`policy_id`)
+  KEY `idx_user_consent_user_id` (`user_id`),
+  KEY `idx_user_consent_policy_id` (`policy_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `user_entitlement_access` (
@@ -699,9 +706,9 @@ CREATE TABLE `user_entitlements` (
   `revoke_reason` varchar(200) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'APPROVED',
   PRIMARY KEY (`id`),
-  KEY `fk_user_entitlements_course` (`course_id`),
-  KEY `fk_user_entitlements_course_order_item` (`course_order_item_id`),
-  KEY `fk_user_entitlements_user` (`user_id`)
+  KEY `idx_user_entitlements_course_id` (`course_id`),
+  KEY `idx_user_entitlements_course_order_item_id` (`course_order_item_id`),
+  KEY `idx_user_entitlements_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -732,12 +739,10 @@ CREATE TABLE `user_oauth_accounts` (
   `provider_user_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
 
-  UNIQUE KEY `uq_oauth_provider_id` (`provider`, `provider_user_id`),
+  UNIQUE KEY `uk_oauth_provider_id` (`provider`, `provider_user_id`),
 
-  KEY `idx_oauth_user_id` (`user_id`),
+  KEY `idx_oauth_user_id` (`user_id`)
 
-  CONSTRAINT `fk_oauth_user`
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `user_reports` (
@@ -748,20 +753,14 @@ CREATE TABLE `user_reports` (
   `reason` varchar(20) NOT NULL,
   `description` varchar(500) NOT NULL,
 
-  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
 
   PRIMARY KEY (`id`),
 
   KEY `idx_user_reports_reporter_id` (`reporter_id`),
   KEY `idx_user_reports_target_id` (`target_id`),
   KEY `idx_user_reports_post_id` (`post_id`),
-  KEY `idx_user_reports_created_at` (`created_at`),
-
-  KEY `fk_user_reports_reporter` (`reporter_id`),
-  KEY `fk_user_reports_post` (`post_id`),
-  KEY `fk_user_reports_target` (`target_id`),
-
-  CONSTRAINT `ck_user_reports_target_at_least_one` CHECK (post_id IS NOT NULL OR target_id IS NOT NULL)
+  KEY `idx_user_reports_created_at` (`created_at`)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -771,7 +770,7 @@ CREATE TABLE `user_roles` (
   `role_id` bigint NOT NULL,
   `user_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_user_role_mapping` (`user_id`,`role_id`),
+  UNIQUE KEY `uk_user_role_mapping` (`user_id`,`role_id`),
   KEY `idx_user_roles_user_id` (`user_id`),
   KEY `idx_user_roles_role_id` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -788,7 +787,7 @@ CREATE TABLE `user_sanctions` (
   PRIMARY KEY (`id`),
 
   KEY `idx_sanctions_user_expiry` (`user_id`,`expired_at`),
-  KEY `fk_sanctions_admin` (`admin_id`)
+  KEY `idx_user_sanctions_admin_id` (`admin_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -802,8 +801,8 @@ CREATE TABLE `user_status_history` (
   `change_reason` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`id`),
 
-  KEY `fk_status_history_admin` (`changed_by`),
-  KEY `fk_status_history_user` (`user_id`)
+  KEY `idx_user_status_history_changed_by` (`changed_by`),
+  KEY `idx_user_status_history_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -896,7 +895,6 @@ ALTER TABLE `payment`
 ALTER TABLE `post` ADD CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
 ALTER TABLE `post` ADD CONSTRAINT `fk_post_board` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`);
 ALTER TABLE `post` ADD CONSTRAINT `fk_post_board_status` FOREIGN KEY (`board_id`, `status_code`) REFERENCES `board_status` (`board_id`, `status_code`);
-ALTER TABLE `post` ADD CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
 ALTER TABLE `post_attachment` ADD CONSTRAINT `fk_attachment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE;
 ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
 ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
@@ -941,8 +939,6 @@ ALTER TABLE `user_roles`
 ALTER TABLE `user_roles`
   ADD CONSTRAINT `fk_mapping_role`
   FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
-ALTER TABLE `user_sanctions`
-  DROP FOREIGN KEY `fk_sanctions_user`;
 ALTER TABLE `user_sanctions`
   ADD CONSTRAINT `fk_sanctions_user`
   FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)

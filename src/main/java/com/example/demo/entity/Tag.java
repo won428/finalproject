@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 )
 /* 게시글 태그 */
 @AttributeOverride(name = "id", column = @Column(name = "tag_id"))
-public class Tag extends BasePkEntity {
+public class Tag {
 //    변수명	        내용	                                 규격	            제약조건
 //    tag_id	    태그ID	                             BIGINT	            PK, AUTO_INCREMENT
 //    name	        사용자가 볼 태그명                      VARCHAR(50)	    NOT NULL

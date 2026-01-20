@@ -69,7 +69,7 @@ public class CourseReview extends BaseTimeEntity {
     @Column(name = "star", nullable = false)
     @Min(1)
     @Max(5)
-    private Integer star; // 1~5 (DB CHECK 또는 서비스 로직으로 검증)
+    private Byte star; // 1~5 (DB CHECK 또는 서비스 로직으로 검증)
 
     @Column(name = "content", length = 200)
     private String content;
