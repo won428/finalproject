@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString(exclude = {"password_hash"})
+@ToString(exclude = {"password"})
 @Entity
 @Table(name = "user_local_credentials")
 /* 로컬 로그인 테이블 */
