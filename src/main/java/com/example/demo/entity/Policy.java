@@ -25,8 +25,8 @@ public class Policy extends BaseTimeEntity {
 //    변수명	        내용                                  	규격	            제약조건
 //    id	        테이블의 PK	                            BIGINT	        PK
 //    type	        약관 종류	                            VARCHAR(50) 	UNIQUE, NOT NULL
-//    version	    개정 버전	                            LONGTEXT	    UNIQUE, NOT NULL
-//    content	    약관본문	                                DATETIME	    NOT NULL
+//    version	    개정 버전	                            VARCHAR(50)	    UNIQUE, NOT NULL
+//    content	    약관본문	                                LONGTEXT	    NOT NULL
 //    published_at	발행 시점(시행일 아님)	                    DATETIME	    NOT NULL
 //    effective_at	효력을 갖는 날짜(시행일)	                DATETIME	    NULL
 //    created_at	해당 행이 언제 생겼는지	                                    DATETIME	NOT NULL DEFAULT CURRENT_TIMESTAMP

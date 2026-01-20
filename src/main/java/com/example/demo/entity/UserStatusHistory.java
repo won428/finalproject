@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @ToString(exclude = {"user","admin"}) // 순환참조/지연로딩 출력 방지
 @Entity
-@Table(name = "")
+@Table(name = "user_status_history")
 /* 사용자의 상태 관리 */
 public class UserStatusHistory extends BasePkEntity {
 //    변수명	내용	규격	제약조건

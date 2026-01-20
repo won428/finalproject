@@ -32,7 +32,7 @@ public class CourseHistory extends BasePkEntity {
 //    변수명	            내용	                규격	        제약조건
 //    id	            테이블 PK	        BIGINT	    PK
 //    course_id     	강의 id	            BIGINT	    FK
-//    revision_no	    버젼	                BIGINT	    NOT NULL DEFAULT 1
+//    revision_no	    버젼	                BIGINT	    NOT NULL
 //    action	        변경 사유(            ENUM	    NOT NULL DEFAULT CREATE
 //                      create
 //                      update

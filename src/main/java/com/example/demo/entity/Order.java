@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString(exclude = {"user"})
 @Entity
-@Table(name = "course_order")
+@Table(name = "orders")
 @NoArgsConstructor
 /* 강의 주문 */
 public class Order extends BasePkEntity {
@@ -46,7 +46,7 @@ public class Order extends BasePkEntity {
             nullable = false,
             insertable = false,
             updatable = false,
-            foreignKey = @ForeignKey(name = "fk_course_order_user")
+            foreignKey = @ForeignKey(name = "fk_orders_user")
     )
     private User user;
 
@@ -56,7 +56,7 @@ public class Order extends BasePkEntity {
     private LocalDateTime orderedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 30)
+    @Column(name = "status", nullable = false, length = 20)
     private Status status = Status.PENDING;
 
     @Column(name = "total_amount", nullable = false)
@@ -72,7 +72,7 @@ public class Order extends BasePkEntity {
             name = "coupon_id",
             insertable = false,
             updatable = false,
-            foreignKey = @ForeignKey(name = "fk_course_order_coupon")
+            foreignKey = @ForeignKey(name = "fk_orders_coupon")
     )
     private Coupon coupon;
 

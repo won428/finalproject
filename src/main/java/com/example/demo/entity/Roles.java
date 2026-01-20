@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString(exclude = {"user_roles"})
+@ToString
 @Entity
 @Table(
         name = "roles",

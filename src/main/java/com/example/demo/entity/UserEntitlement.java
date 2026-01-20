@@ -75,7 +75,7 @@ public class UserEntitlement extends BaseTimeEntity {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.APPROVED;
 
     @Column(name = "revoked_at", nullable = true)
     private LocalDateTime revokedAt;
