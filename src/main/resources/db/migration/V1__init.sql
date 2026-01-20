@@ -822,3 +822,146 @@ CREATE TABLE `users` (
   UNIQUE KEY `uk_users_nickname` (`nickname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- ======================
+-- Foreign keys
+-- ======================
+
+ALTER TABLE `board_status` ADD CONSTRAINT `fk_board_status_board` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `chat_flows` ADD CONSTRAINT `fk_chat_flows_parent` FOREIGN KEY (`parent_id`) REFERENCES `chat_flows` (`id`) ON DELETE CASCADE;
+ALTER TABLE `chat_flows` ADD CONSTRAINT `fk_chat_flows_next_node` FOREIGN KEY (`next_node_id`) REFERENCES `chat_flows` (`id`) ON DELETE SET NULL;
+ALTER TABLE `chat_message` ADD CONSTRAINT `fk_msg_sender_user` FOREIGN KEY (`sender_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `chat_message` ADD CONSTRAINT `fk_msg_session` FOREIGN KEY (`session_id`) REFERENCES `chat_session` (`id`) ON DELETE CASCADE;
+-- 세션 삭제 시 읽음 상태도 삭제
+ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_session` FOREIGN KEY (`session_id`) REFERENCES `chat_session` (`id`) ON DELETE CASCADE;
+
+-- 유저 삭제 시 읽음 상태도 삭제
+ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_reader` FOREIGN KEY (`reader_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+-- 메시지 삭제 시 '마지막 읽은 메시지' 정보만 NULL (읽음 상태 자체는 유지)
+ALTER TABLE `chat_read_state` ADD CONSTRAINT `fk_read_state_last_message` FOREIGN KEY (`last_read_message_id`) REFERENCES `chat_message` (`id`) ON DELETE SET NULL;
+ALTER TABLE `chat_session` ADD CONSTRAINT `fk_session_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `counselor_profile` (`counselor_id`);
+ALTER TABLE `chat_session` ADD CONSTRAINT `fk_session_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
+ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
+ALTER TABLE `comment` ADD CONSTRAINT `fk_comment_parent` FOREIGN KEY (`parent_comment_id`) REFERENCES `comment` (`comment_id`);
+ALTER TABLE `counselor_absence` ADD CONSTRAINT `fk_absence_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `counselor_profile` (`counselor_id`) ON DELETE CASCADE;
+ALTER TABLE `counselor_absence` ADD CONSTRAINT `fk_absence_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `counselor_profile` ADD CONSTRAINT `fk_counselor_profile_user` FOREIGN KEY (`counselor_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `coupon_cart` ADD CONSTRAINT `fk_coupon_cart_coupon` FOREIGN KEY (`coupon_id`) REFERENCES `coupon` (`id`);
+ALTER TABLE `coupon_cart` ADD CONSTRAINT `fk_coupon_cart_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `course_att` ADD CONSTRAINT `fk_course_att_courses_curriculum` FOREIGN KEY (`courses_curriculum_id`) REFERENCES `courses_curriculum` (`id`);
+ALTER TABLE `course_history` ADD CONSTRAINT `fk_course_history_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `course_history` ADD CONSTRAINT `fk_course_history_user` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`);
+ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_coupon`
+  FOREIGN KEY (`coupon_id`) REFERENCES `coupon` (`id`)
+  ON DELETE SET NULL;
+ALTER TABLE `course_order_items`
+  ADD CONSTRAINT `fk_order_item_course`
+  FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `course_order_items`
+  ADD CONSTRAINT `fk_order_item_course_order`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+ALTER TABLE `course_requests` ADD CONSTRAINT `fk_course_request_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `course_reviews` ADD CONSTRAINT `fk_course_reviews_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `course_reviews` ADD CONSTRAINT `fk_course_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `course_sections` ADD CONSTRAINT `fk_course_section_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `courses` ADD CONSTRAINT `fk_course_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `courses_curriculum` ADD CONSTRAINT `fk_curriculum_course_section` FOREIGN KEY (`course_section_id`) REFERENCES `course_sections` (`id`);
+ALTER TABLE `expert_applications` ADD CONSTRAINT `fk_expert_applications_reviewer_admin` FOREIGN KEY (`reviewer_admin_id`) REFERENCES `users` (`id`);
+ALTER TABLE `expert_applications` ADD CONSTRAINT `fk_expert_applications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `expert_applications_att` ADD CONSTRAINT `fk_expert_app_att_application` FOREIGN KEY (`expert_application_id`) REFERENCES `expert_applications` (`id`);
+ALTER TABLE `financial_ledger` ADD CONSTRAINT `fk_ledger_ad_campaign` FOREIGN KEY (`ad_campaign_id`) REFERENCES `ad_campaigns` (`id`);
+ALTER TABLE `financial_ledger` ADD CONSTRAINT `fk_ledger_settlement` FOREIGN KEY (`settlement_id`) REFERENCES `settlements` (`id`);
+ALTER TABLE `mentee_list` ADD CONSTRAINT `fk_mentee_list_mentee` FOREIGN KEY (`mentee_id`) REFERENCES `users` (`id`);
+ALTER TABLE `mentee_list` ADD CONSTRAINT `fk_mentee_list_mentoring_post` FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`);
+ALTER TABLE `mentor_applications` ADD CONSTRAINT `fk_mentor_application_processed_by` FOREIGN KEY (`processed_by`) REFERENCES `users` (`id`);
+ALTER TABLE `mentor_applications` ADD CONSTRAINT `fk_mentor_application_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `mentoring_order_items`
+  ADD CONSTRAINT `fk_mentoring_order_items_mentoring_post`
+  FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`);
+ALTER TABLE `mentoring_order_items`
+  ADD CONSTRAINT `fk_mentoring_order_items_order`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+ALTER TABLE `mentoring_post_tags` ADD CONSTRAINT `fk_mpt_post` FOREIGN KEY (`post_id`) REFERENCES `mentoring_posts` (`id`);
+ALTER TABLE `mentoring_post_tags` ADD CONSTRAINT `fk_mpt_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
+ALTER TABLE `mentoring_posts` ADD CONSTRAINT `fk_mentoring_post_user` FOREIGN KEY (`mentor_id`) REFERENCES `users` (`id`);
+ALTER TABLE `mentors` ADD CONSTRAINT `fk_mentors_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `payment`
+  ADD CONSTRAINT `fk_payment_order`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+ALTER TABLE `post` ADD CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
+ALTER TABLE `post` ADD CONSTRAINT `fk_post_board` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`);
+ALTER TABLE `post` ADD CONSTRAINT `fk_post_board_status` FOREIGN KEY (`board_id`, `status_code`) REFERENCES `board_status` (`board_id`, `status_code`);
+ALTER TABLE `post` ADD CONSTRAINT `fk_post_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`);
+ALTER TABLE `post_attachment` ADD CONSTRAINT `fk_attachment_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE;
+ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`);
+ALTER TABLE `post_tag` ADD CONSTRAINT `fk_post_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
+ALTER TABLE `refund`
+  ADD CONSTRAINT `fk_refund_order`
+  FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+ALTER TABLE `refund` ADD CONSTRAINT `fk_refund_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`id`);
+ALTER TABLE `settlement_items` ADD CONSTRAINT `fk_item_payment` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`id`);
+ALTER TABLE `settlement_items` ADD CONSTRAINT `fk_item_settlement` FOREIGN KEY (`settlement_id`) REFERENCES `settlements` (`id`);
+ALTER TABLE `settlements` ADD CONSTRAINT `fk_settlement_instructor` FOREIGN KEY (`instructor_id`) REFERENCES `users` (`id`);
+ALTER TABLE `support_closure` ADD CONSTRAINT `fk_closure_admin` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `user_consent` ADD CONSTRAINT `fk_user_consent_policy` FOREIGN KEY (`policy_id`) REFERENCES `policy` (`id`);
+ALTER TABLE `user_consent` ADD CONSTRAINT `fk_user_consent_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `user_entitlement_access`
+  ADD CONSTRAINT `fk_user_entitlement_access_course`
+  FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`)
+  ON DELETE CASCADE;
+ALTER TABLE `user_entitlement_access`
+  ADD CONSTRAINT `fk_user_entitlement_access_course_order_item`
+  FOREIGN KEY (`course_order_item_id`) REFERENCES `course_order_items` (`id`)
+  ON DELETE CASCADE;
+ALTER TABLE `user_entitlement_access`
+  ADD CONSTRAINT `fk_user_entitlement_access_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  ON DELETE CASCADE;
+ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`);
+ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_course_order_item` FOREIGN KEY (`course_order_item_id`) REFERENCES `course_order_items` (`id`);
+ALTER TABLE `user_entitlements` ADD CONSTRAINT `fk_user_entitlements_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `user_oauth_accounts`
+  ADD CONSTRAINT `fk_oauth_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_reporter` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+-- 게시글(post) 삭제 시 post_id만 NULL 처리 (신고 기록 유지)
+ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_post` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE SET NULL;
+
+-- 대상자(target) 삭제 시 target_id만 NULL 처리 (신고 기록 유지)
+ALTER TABLE `user_reports` ADD CONSTRAINT `fk_user_reports_target` FOREIGN KEY (`target_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `user_roles`
+  ADD CONSTRAINT `fk_mapping_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `user_roles`
+  ADD CONSTRAINT `fk_mapping_role`
+  FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE;
+ALTER TABLE `user_sanctions`
+  DROP FOREIGN KEY `fk_sanctions_user`;
+ALTER TABLE `user_sanctions`
+  ADD CONSTRAINT `fk_sanctions_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  ON DELETE CASCADE;
+ALTER TABLE `user_status_history`
+  ADD CONSTRAINT `fk_status_history_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `user_status_history`
+  ADD CONSTRAINT `fk_status_history_admin`
+  FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+ALTER TABLE `user_local_credentials`
+  ADD CONSTRAINT `fk_user_local_credentials_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+ALTER TABLE `mentee_applications`
+  ADD CONSTRAINT `fk_mentee_applications_mentoring_posts`
+  FOREIGN KEY (`mentoring_post_id`) REFERENCES `mentoring_posts` (`id`)
+  ON DELETE SET NULL;
+ALTER TABLE `mentee_applications`
+  ADD CONSTRAINT `fk_mentee_applications_user`
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  ON DELETE SET NULL;
+SET FOREIGN_KEY_CHECKS = 1;
