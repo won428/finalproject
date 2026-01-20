@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "mentee_list")
 /* 멘티 목록 */
-public class Mentee extends BasePkEntity {
+public class MenteeList extends BasePkEntity {
 //    변수명	                내용	                규격	        제약조건
 //    id	                테이블 PK	        BIGINT	    PK
 //    mentee_id	            멘티 ID	            BIGINT	    FK

@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @Table(
         name = "user_sanctions",
         indexes = {
-                @Index(name = "idx_sanctions_user_expiry", columnList = "user_id, expired_at")
+                @Index(name = "idx_sanctions_user_expiry", columnList = "user_id, expired_at"),
+                @Index(name = "fk_sanctions_admin", columnList = "admin_id")
         }
 )
 /* 유저 제한 상태(현재 상태만 저장, 제한 해제되면 삭제) */

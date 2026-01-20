@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
         name = "mentors"
 )
 /* 멘토 목록 */
-public class Mentor extends BasePkEntity {
+public class MentorList extends BasePkEntity {
 //    변수명	        내용	                규격	        제약조건
 //    id	        테이블 PK	        BIGINT	    PK
 //    user_id	    사용자 ID	        BIGINT	    FK, NOT NULL

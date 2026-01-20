@@ -67,7 +67,7 @@ public class MentoringPost extends BasePostEntity {
     @Column(name = "recruitment_end_date", nullable = false)
     private LocalDate recruitmentEndDate;
 
-    @Column(name = "language_code", nullable = false)
+    @Column(name = "language_code", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private LanguageCode languageCode;
 }

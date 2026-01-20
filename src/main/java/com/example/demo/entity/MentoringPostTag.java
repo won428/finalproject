@@ -12,8 +12,9 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"mentoringPost", "tag"})
 @Entity
+@IdClass(MentoringPostTag.MentoringPostTagId.class)
 @Table(name = "mentoring_post_tags")
 /* 멘토링 글 태그 */
 public class MentoringPostTag extends BaseTagEntity {
