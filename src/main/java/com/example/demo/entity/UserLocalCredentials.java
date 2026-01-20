@@ -26,7 +26,7 @@ public class UserLocalCredentials extends BaseTimeEntity {
 //    user_id	            유저 닉네임	                    VARCHAR(50)	    FK
 //    email	                이메일	                        VARCHAR(255)	UNIQUE
 //    email_verified_at	    이메일 인증 시각	                DATETIME	    NULL
-//    password_hash	        암호화된 비밀번호	                VARCHAR(255)	NULL
+//    password	        암호화된 비밀번호	                VARCHAR(255)	NULL
 //    password_updated_at	비밀번호 변경일자	                DATETIME	    NULL
 //    created_at	        행이 생성된 날짜	                DATETIME	    NOT NULL DEFAULT CURRENT_TIMESTAMP
 //    updated_at	        행 수정된 날짜(비밀번호 변경 등)	    DATETIME	    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
