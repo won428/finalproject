@@ -1,6 +1,6 @@
-package com.example.demo.base;
+package com.example.demo.base.entity;
 
-import com.example.demo.enums.Status;
+import com.example.demo.base.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

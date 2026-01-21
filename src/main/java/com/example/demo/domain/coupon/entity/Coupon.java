@@ -1,6 +1,6 @@
 package com.example.demo.domain.coupon.entity;
 
-import com.example.demo.base.BaseTimeEntity;
+import com.example.demo.base.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

@@ -1,6 +1,6 @@
 package com.example.demo.domain.expert.entity;
 
-import com.example.demo.base.BaseAttEntity;
+import com.example.demo.base.entity.BaseAttEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

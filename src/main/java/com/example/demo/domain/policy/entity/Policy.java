@@ -1,6 +1,6 @@
 package com.example.demo.domain.policy.entity;
 
-import com.example.demo.base.BaseTimeEntity;
+import com.example.demo.base.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

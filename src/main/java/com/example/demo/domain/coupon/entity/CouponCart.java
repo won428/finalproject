@@ -1,8 +1,8 @@
 package com.example.demo.domain.coupon.entity;
 
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.user.entity.User;
-import com.example.demo.enums.Status;
+import com.example.demo.base.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

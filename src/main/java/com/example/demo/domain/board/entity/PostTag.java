@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.entity;
 
-import com.example.demo.base.BaseTagEntity;
+import com.example.demo.base.entity.BaseTagEntity;
 import com.example.demo.domain.tag.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;

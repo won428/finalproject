@@ -1,6 +1,6 @@
 package com.example.demo.domain.board.entity;
 
-import com.example.demo.base.BaseAttEntity;
+import com.example.demo.base.entity.BaseAttEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

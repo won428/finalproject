@@ -1,6 +1,6 @@
 package com.example.demo.domain.finance.entity;
 
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.campaign.entity.AdCampaigns;
 import com.example.demo.domain.settlement.entity.Settlement;
 import jakarta.persistence.*;

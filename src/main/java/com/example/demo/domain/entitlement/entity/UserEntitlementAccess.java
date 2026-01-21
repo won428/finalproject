@@ -1,6 +1,6 @@
 package com.example.demo.domain.entitlement.entity;
 
-import com.example.demo.base.BaseTimeEntity;
+import com.example.demo.base.entity.BaseTimeEntity;
 import com.example.demo.domain.course.entity.Course;
 import com.example.demo.domain.order.entity.CourseOrderItem;
 import com.example.demo.domain.user.entity.User;

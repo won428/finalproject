@@ -1,5 +1,5 @@
 package com.example.demo.domain.order.entity;
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.mentoring.entity.MentoringPost;
 import jakarta.persistence.*;
 import lombok.Getter;

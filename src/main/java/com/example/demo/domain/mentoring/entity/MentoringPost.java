@@ -1,8 +1,8 @@
 package com.example.demo.domain.mentoring.entity;
 
-import com.example.demo.base.BasePostEntity;
+import com.example.demo.base.entity.BasePostEntity;
 import com.example.demo.domain.user.entity.User;
-import com.example.demo.enums.LanguageCode;
+import com.example.demo.base.enums.LanguageCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

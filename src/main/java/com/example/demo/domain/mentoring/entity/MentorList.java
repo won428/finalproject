@@ -1,6 +1,6 @@
 package com.example.demo.domain.mentoring.entity;
 
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;

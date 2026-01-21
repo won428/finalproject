@@ -1,10 +1,10 @@
 package com.example.demo.domain.payment.entity;
 
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.order.entity.Order;
-import com.example.demo.enums.FailCode;
-import com.example.demo.enums.ReasonCode;
-import com.example.demo.enums.Status;
+import com.example.demo.base.enums.FailCode;
+import com.example.demo.base.enums.ReasonCode;
+import com.example.demo.base.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

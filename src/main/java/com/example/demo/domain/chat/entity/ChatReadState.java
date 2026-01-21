@@ -1,6 +1,6 @@
 package com.example.demo.domain.chat.entity;
 
-import com.example.demo.base.BaseTimeNoPkEntity;
+import com.example.demo.base.entity.BaseTimeNoPkEntity;
 import com.example.demo.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

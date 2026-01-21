@@ -1,6 +1,6 @@
 package com.example.demo.domain.course.entity;
 
-import com.example.demo.base.BaseRequestTimeEntity;
+import com.example.demo.base.entity.BaseRequestTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,10 +1,10 @@
 package com.example.demo.domain.entitlement.entity;
 
-import com.example.demo.base.BaseTimeEntity;
+import com.example.demo.base.entity.BaseTimeEntity;
 import com.example.demo.domain.course.entity.Course;
 import com.example.demo.domain.order.entity.CourseOrderItem;
 import com.example.demo.domain.user.entity.User;
-import com.example.demo.enums.Status;
+import com.example.demo.base.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

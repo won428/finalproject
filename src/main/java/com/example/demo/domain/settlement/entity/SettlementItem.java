@@ -1,6 +1,6 @@
 package com.example.demo.domain.settlement.entity;
 
-import com.example.demo.base.BasePkEntity;
+import com.example.demo.base.entity.BasePkEntity;
 import com.example.demo.domain.payment.entity.Payment;
 import jakarta.persistence.*;
 import lombok.Getter;

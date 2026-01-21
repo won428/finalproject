@@ -1,6 +1,6 @@
-package com.example.demo.base;
+package com.example.demo.base.entity;
 
-import com.example.demo.enums.StorageProvider;
+import com.example.demo.base.enums.StorageProvider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
