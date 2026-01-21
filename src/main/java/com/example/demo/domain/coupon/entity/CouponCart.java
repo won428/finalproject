@@ -46,7 +46,7 @@ public class CouponCart extends BasePkEntity {
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_coupon_cart_users")
     )
-    private User user;
+    private User user;      
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
